@@ -41,36 +41,17 @@ namespace KMG
 	}
 
 
-#define EVENT_COMPARE(x) if(event.GetEventType() == x)
-	void Application::OnEvent(Event& event)
+	void Application::OnEvent(Event& e)
 	{
-		auto type = event.GetEventType();
+		for (auto* layer : m_Layers)
+			layer->OnEvent(e);
 
-		EVENT_COMPARE(EventType::WindowClosed)
+		auto type = e.GetEventType();
+
+		if(e.GetEventType() == EventType::WindowClosed)
 		{
 			m_Running = false;
 			Shutdown();
-		}
-
-		EVENT_COMPARE(EventType::KeyStateChanged)
-		{
-			auto& keyEvent = static_cast<KeyEvent&>(event);
-			KMG_LOG_WARN(
-				"Key event not yet implemented (key: " +
-				std::to_string(keyEvent.Key) + ", action: " +
-				std::to_string(keyEvent.Action) +
-				")"
-			);
-		}
-
-		EVENT_COMPARE(EventType::MouseMoved)
-		{
-			static bool s_Printed = false;
-			if (s_Printed)
-				return;
-
-			KMG_LOG_WARN("Mouse moved event not yet implemented.");
-			s_Printed = true;
 		}
 	}
 }

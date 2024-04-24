@@ -8,6 +8,7 @@ public:
 	virtual ~ExampleLayer() = default;
 
 	void OnEnable() override;
-	void OnUpdate(double deltaTime) override;
 	void OnDisable() override;
+	void OnUpdate(double deltaTime) override;
+	void OnEvent(KMG::Event& e) override;
 };
