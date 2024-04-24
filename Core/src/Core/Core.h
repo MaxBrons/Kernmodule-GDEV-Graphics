@@ -14,6 +14,7 @@
 		#error "Platform doesn't support debugbreak."
 	#endif
 	
+	#define KMG_CORE_VALIDATE(x, message) if(!(x)) KMG_LOG_ERROR(message)
 	#define KMG_CORE_ASSERT(x, message) if(!(x)) { KMG_LOG_ERROR(message); KMG_DEBUGBREAK(); }
 #else
 	#define KMG_DEBUGBREAK()

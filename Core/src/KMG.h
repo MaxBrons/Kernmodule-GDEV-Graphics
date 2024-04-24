@@ -4,3 +4,4 @@
 #endif
 
 #include "Core/Application.h"
+#include "Core/VertexArrayBuffer.h"

@@ -1,8 +1,30 @@
 #include "ExampleLayer.h"
 
+#include <glfw/include/GLFW/glfw3.h> // Temp, for easy testing; TODO: Abstract out glfw code to Core.
+
 void ExampleLayer::OnEnable()
 {
-	KMG_LOG_WARN("OnEnable of Example Layer not yet implemented.");
+	//KMG_LOG_WARN("OnEnable of Example Layer not yet implemented.");
+
+	float vertices[3 * 3] = {
+		 0.0f,  0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f,
+		 0.5f, -0.5f, 0.0f,
+	};
+
+	m_VAB = KMG::VertextArrayBuffer(&vertices, sizeof(vertices), 0, 3, GL_FLOAT, 3 * sizeof(float));
+
+	/*GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, 0x00, nullptr);
+	glCompileShader(vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, 0x00, nullptr);
+	glCompileShader(fragmentShader);
+
+	GLint success;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	KMG_CORE_VALIDATE(success, "CORE::SHADER: Failed to compile vertex shader");*/
 }
 
 void ExampleLayer::OnDisable()
@@ -12,12 +34,9 @@ void ExampleLayer::OnDisable()
 
 void ExampleLayer::OnUpdate(double deltaTime)
 {
-	static bool s_Triggered;
-	if (s_Triggered)
-		return;
-
-	KMG_LOG_WARN("OnUpdate of Example Layer not yet implemented.");
-	s_Triggered = true;
+	m_VAB.Bind();
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	m_VAB.Unbind();
 }
 
 #define EVENT_COMPARE(e, type) if(e.GetEventType() == type)
