@@ -12,19 +12,9 @@ void ExampleLayer::OnEnable()
 		 0.5f, -0.5f, 0.0f,
 	};
 
-	m_VAB = KMG::VertextArrayBuffer(&vertices, sizeof(vertices), 0, 3, GL_FLOAT, 3 * sizeof(float));
+	m_VAB = KMG::VertextArrayBuffer(&vertices, sizeof(vertices), 3, GL_FLOAT, 3 * sizeof(float));
 
-	/*GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, 0x00, nullptr);
-	glCompileShader(vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, 0x00, nullptr);
-	glCompileShader(fragmentShader);
-
-	GLint success;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	KMG_CORE_VALIDATE(success, "CORE::SHADER: Failed to compile vertex shader");*/
+	m_Shader = KMG::Shader("assets/shaders/Vertex.glsl", "assets/shaders/Fragment.glsl");
 }
 
 void ExampleLayer::OnDisable()
@@ -34,9 +24,15 @@ void ExampleLayer::OnDisable()
 
 void ExampleLayer::OnUpdate(double deltaTime)
 {
+	m_Shader.Bind();
+	m_Shader.SetUniform3f("aPosition", .5f, .5f, 0.0f);
+	m_Shader.SetUniform4f("aColor", 0.0f, 1.0f, 0.0f, 1.0f);
+
 	m_VAB.Bind();
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	m_VAB.Unbind();
+
+	//m_Shader.Unbind();
 }
 
 #define EVENT_COMPARE(e, type) if(e.GetEventType() == type)

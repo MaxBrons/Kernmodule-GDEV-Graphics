@@ -4,4 +4,6 @@
 #endif
 
 #include "Core/Application.h"
+#include "Core/Utils.h"
 #include "Core/VertexArrayBuffer.h"
+#include "Core/Shader.h"

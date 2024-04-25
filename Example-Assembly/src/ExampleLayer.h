@@ -13,5 +13,5 @@ public:
 	void OnEvent(KMG::Event& e) override;
 private:
 	KMG::VertextArrayBuffer m_VAB;
-	GLuint v, b;
+	KMG::Shader m_Shader;
 };
