@@ -7,7 +7,7 @@ namespace KMG
 	{
 	public:
 		VertextArrayBuffer() = default;
-		VertextArrayBuffer(const void* data, GLsizeiptr dataSize, unsigned int start, unsigned int size, GLenum type, GLsizei stride);
+		VertextArrayBuffer(const void* data, GLsizeiptr dataSize, unsigned int size, GLenum type, GLsizei stride);
 		virtual ~VertextArrayBuffer() = default;
 
 		void Bind();
