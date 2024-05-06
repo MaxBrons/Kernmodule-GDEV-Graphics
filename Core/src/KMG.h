@@ -5,5 +5,6 @@
 
 #include "Core/Application.h"
 #include "Core/Utils.h"
-#include "Core/VertexArrayBuffer.h"
+#include "Core/Buffer.h"
+#include "Core/VertexArray.h"
 #include "Core/Shader.h"

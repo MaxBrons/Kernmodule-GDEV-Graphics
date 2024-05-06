@@ -2,17 +2,32 @@
 
 #include <glfw/include/GLFW/glfw3.h> // Temp, for easy testing; TODO: Abstract out glfw code to Core.
 
+//static GLuint VBO, VAO, EBO;
 void ExampleLayer::OnEnable()
 {
 	//KMG_LOG_WARN("OnEnable of Example Layer not yet implemented.");
+	m_VertexArray = KMG::VertexArray::Create();
 
-	float vertices[3 * 3] = {
-		 0.0f,  0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
+	float vertices[] = {    
+		-0.5f,  0.5f, 0.0f,	 0.0f, 1.0f, 0.0, 1.0f,
+		-0.5f, -0.5f, 0.0f,	 0.0f, 1.0f, 0.0, 1.0f,
+		 0.5f, -0.5f, 0.0f,	 0.0f, 1.0f, 0.0, 1.0f,
+		 0.5f,  0.5f, 0.0f,	 0.0f, 1.0f, 0.0, 1.0f,
 	};
 
-	m_VAB = KMG::VertextArrayBuffer(&vertices, sizeof(vertices), 3, GL_FLOAT, 3 * sizeof(float));
+	auto vertexBuffer = KMG::VertexBuffer::Create(vertices, sizeof(vertices));
+	vertexBuffer->AddLayout(KMG::BufferLayout("aPosition", KMG::LayoutType::Float3, false));
+	vertexBuffer->AddLayout(KMG::BufferLayout("aColor", KMG::LayoutType::Float4, false));
+	m_VertexArray->AddVertexBuffer(vertexBuffer);
+
+	uint32_t indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	m_VertexArray->Bind();
+	auto indexBuffer = KMG::IndexBuffer::Create(indices, sizeof(indices));
+	m_VertexArray->SetIndexBuffer(indexBuffer);
 
 	m_Shader = KMG::Shader("assets/shaders/Vertex.glsl", "assets/shaders/Fragment.glsl");
 }
@@ -25,14 +40,10 @@ void ExampleLayer::OnDisable()
 void ExampleLayer::OnUpdate(double deltaTime)
 {
 	m_Shader.Bind();
-	m_Shader.SetUniform3f("aPosition", .5f, .5f, 0.0f);
-	m_Shader.SetUniform4f("aColor", 0.0f, 1.0f, 0.0f, 1.0f);
+	//m_Shader.SetUniform4f("aColor", 1.0f, 0.0f, 0.0f, 1.0f);
 
-	m_VAB.Bind();
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	m_VAB.Unbind();
-
-	//m_Shader.Unbind();
+	m_VertexArray->Bind();
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 #define EVENT_COMPARE(e, type) if(e.GetEventType() == type)

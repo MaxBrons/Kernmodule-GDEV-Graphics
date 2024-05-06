@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Core.h"
 #include "KMG.h"
 
 class ExampleLayer : public KMG::ApplicationLayer
@@ -12,6 +13,6 @@ public:
 	void OnUpdate(double deltaTime) override;
 	void OnEvent(KMG::Event& e) override;
 private:
-	KMG::VertextArrayBuffer m_VAB;
+	KMG::s_ptr<KMG::VertexArray> m_VertexArray;
 	KMG::Shader m_Shader;
 };
