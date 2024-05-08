@@ -16,10 +16,12 @@ namespace KMG
 		void Bind();
 		void Unbind();
 
-		void SetUniform1f(const std::string& name, GLfloat x);
-		void SetUniform2f(const std::string& name, GLfloat x, GLfloat y);
-		void SetUniform3f(const std::string& name, GLfloat x, GLfloat y, GLfloat z);
-		void SetUniform4f(const std::string& name, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+		void SetFloat(const std::string& name, float value);
+		void SetFloat2(const std::string& name, const glm::vec2& value);
+		void SetFloat3(const std::string& name, const glm::vec3& value);
+		void SetFloat4(const std::string& name, const glm::vec4& value);
+		void SetMat3(const std::string& name, const glm::mat3& value);
+		void SetMat4(const std::string& name, const glm::mat4& value);
 	private:
 		GLuint m_ShaderID;
 	};
