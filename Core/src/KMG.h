@@ -8,3 +8,4 @@
 #include "Core/Buffer.h"
 #include "Core/VertexArray.h"
 #include "Core/Shader.h"
+#include "Core/Texture.h"

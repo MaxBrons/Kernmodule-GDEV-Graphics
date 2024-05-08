@@ -15,4 +15,5 @@ public:
 private:
 	KMG::s_ptr<KMG::VertexArray> m_VertexArray;
 	KMG::Shader m_Shader;
+	uint32_t m_Width, m_Height;
 };

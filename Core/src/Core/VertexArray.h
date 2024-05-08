@@ -14,7 +14,10 @@ namespace KMG
 		void Unbind();
 
 		void AddVertexBuffer(const s_ptr<VertexBuffer>& vertexBuffer);
+		const std::vector<s_ptr<VertexBuffer>>& GetVertexBuffers() const { return m_VertexBuffers; }
+
 		void SetIndexBuffer(const s_ptr<IndexBuffer>& indexBuffer);
+		const s_ptr<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 
 		static s_ptr<VertexArray> Create();
 	private:

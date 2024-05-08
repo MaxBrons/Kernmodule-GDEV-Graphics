@@ -1,5 +1,6 @@
 #include "corepch.h"
 #include "VertexArray.h"
+#include "Log.h"
 
 namespace KMG
 {
