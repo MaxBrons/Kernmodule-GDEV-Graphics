@@ -15,7 +15,12 @@ namespace KMG
 	void Application::Run()
 	{
 		for (auto& layer : m_Layers)
+		{
 			layer->OnEnable();
+			
+			WindowResizeEvent event(m_Window->GetWidth(), m_Window->GetHeight());
+			layer->OnEvent(event);
+		}
 
 		while (m_Running)
 		{
