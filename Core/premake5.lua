@@ -28,6 +28,7 @@ project "Core"
 	includedirs
 	{
 		"src",
+		"src/Core",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glm}",

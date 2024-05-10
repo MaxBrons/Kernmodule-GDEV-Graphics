@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
+#include "Events/Event.h"
 #include "ApplicationLayer.h"
-#include "Event.h"
 #include "Window.h"
 
 namespace KMG

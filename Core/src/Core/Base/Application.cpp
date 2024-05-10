@@ -1,7 +1,6 @@
 #include "corepch.h"
 #include "Application.h"
 #include "Platform/Windows/WindowsWindow.h"
-#include "Log.h"
 
 namespace KMG
 {
@@ -24,9 +23,6 @@ namespace KMG
 
 		while (m_Running)
 		{
-			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-
 			// TODO: Create Timer class to pass on high_res_clock delta time.
 			for (auto& layer : m_Layers)
 				layer->OnUpdate(0);
@@ -53,8 +49,6 @@ namespace KMG
 	{
 		for (auto* layer : m_Layers)
 			layer->OnEvent(e);
-
-		auto type = e.GetEventType();
 
 		if(e.GetEventType() == EventType::WindowClosed)
 		{

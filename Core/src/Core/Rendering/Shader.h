@@ -1,6 +1,5 @@
 #pragma once
-#include "Log.h"
-#include "Utils.h"
+#include "Utilities/Utils.h"
 
 #include <string>
 

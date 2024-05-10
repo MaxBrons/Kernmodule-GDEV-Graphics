@@ -1,6 +1,5 @@
 #include "corepch.h"
 #include "Buffer.h"
-#include "Log.h"
 
 namespace KMG
 {

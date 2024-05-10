@@ -1,6 +1,6 @@
 #include "corepch.h"
 #include "WindowsWindow.h"
-#include "Core/Log.h"
+#include "Base/Log.h"
 
 namespace KMG
 {

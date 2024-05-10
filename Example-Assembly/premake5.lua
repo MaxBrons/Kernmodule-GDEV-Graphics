@@ -16,6 +16,7 @@ project "Example-Assembly"
 	includedirs
 	{
 		"../Core/src",
+		"../Core/src/Core",
 		"../Core/vendor",
 		"../Core/%{IncludeDir.glm}",
 		"../Core/%{IncludeDir.Glad}",

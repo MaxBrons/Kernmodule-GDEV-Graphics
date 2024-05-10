@@ -1,5 +1,6 @@
 #include "corepch.h"
 #include "Shader.h"
+#include "Base/Log.h"
 
 namespace KMG
 {
