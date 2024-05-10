@@ -103,35 +103,41 @@ void ExampleLayer::OnUpdate(double deltaTime)
 	glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, 0);
 }
 
-#define EVENT_COMPARE(e, type) if(e.GetEventType() == type)
 void ExampleLayer::OnEvent(KMG::Event& e)
 {
-	auto type = e.GetEventType();
+	KMG::EventDispatcher::Dispatch<KMG::KeyEvent>(e, CREATE_EVENT_FN_REF(OnKeyStateChanged));
+	KMG::EventDispatcher::Dispatch<KMG::MouseMovedEvent>(e, CREATE_EVENT_FN_REF(OnMouseMoved));
+	KMG::EventDispatcher::Dispatch<KMG::WindowResizeEvent>(e, CREATE_EVENT_FN_REF(OnWindowResized));
+}
 
-	if (type == KMG::EventType::KeyStateChanged)
-	{
-		auto& keyEvent = static_cast<KMG::KeyEvent&>(e);
-		KMG_LOG_WARN(
-			"Key event not yet implemented (key: " +
-			std::to_string(keyEvent.Key) + ", action: " +
-			std::to_string(keyEvent.Action) +
-			")"
-		);
-	}
+bool ExampleLayer::OnKeyStateChanged(KMG::KeyEvent& e)
+{
+	KMG_LOG_WARN(
+		"Key event not yet implemented (key: " +
+		std::to_string(e.Key) + ", action: " +
+		std::to_string(e.Action) +
+		")"
+	);
 
-	if (type == KMG::EventType::MouseMoved)
-	{
-		static bool s_Printed = false;
-		if (s_Printed)
-			return;
+	return true;
+}
 
-		KMG_LOG_WARN("Mouse moved event not yet implemented.");
-		s_Printed = true;
-	}
+bool ExampleLayer::OnMouseMoved(KMG::MouseMovedEvent& e)
+{
+	static bool s_Printed = false;
+	if (s_Printed)
+		return true;
 
-	if (type == KMG::EventType::WindowResized) {
-		auto& resizeEvent = static_cast<KMG::WindowResizeEvent&>(e);
-		m_Width = resizeEvent.Width;
-		m_Height = resizeEvent.Height;
-	}
+	KMG_LOG_WARN("Mouse moved event not yet implemented.");
+	s_Printed = true;
+
+	return true;
+}
+
+bool ExampleLayer::OnWindowResized(KMG::WindowResizeEvent& e)
+{
+	m_Width = e.Width;
+	m_Height = e.Height;
+
+	return true;
 }
