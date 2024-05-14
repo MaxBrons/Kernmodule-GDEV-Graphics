@@ -25,18 +25,14 @@ namespace KMG
 
 	void Camera3D::RecalculateViewMatrix()
 	{
-		m_Position = CalculatePosition();
-
-		//m_ViewMatrix = glm::lookAt(m_Position, m_Position + GetForwardDirection(), GetUpDirection());
-		m_ViewMatrix = glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(GetOrientation());
-		m_ViewMatrix = glm::inverse(m_ViewMatrix);
+		m_ViewMatrix = glm::lookAt(m_Position, m_Position + GetForwardDirection(), GetUpDirection());
 	}
 
 	void Camera3D::Move(const glm::vec3 delta)
 	{
-		m_FocalPoint += GetRightDirection() * delta.x * m_ZoomLevel;
-		m_FocalPoint += GetUpDirection() * delta.y * m_ZoomLevel;
-		m_FocalPoint += GetForwardDirection() * delta.z * m_ZoomLevel;
+		m_Position += GetRightDirection() * delta.x * m_ZoomLevel;
+		m_Position += GetUpDirection() * delta.y * m_ZoomLevel;
+		m_Position += GetForwardDirection() * delta.z * m_ZoomLevel;
 	}
 
 	void Camera3D::Rotate(const glm::vec3 delta)
@@ -57,7 +53,7 @@ namespace KMG
 
 		if (m_ZoomLevel < 1.0f)
 		{
-			m_FocalPoint += GetForwardDirection();
+			m_Position += GetForwardDirection();
 			m_ZoomLevel = 1.0f;
 		}
 	}
@@ -105,10 +101,4 @@ namespace KMG
 	{
 		return glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
 	}
-
-	glm::vec3 Camera3D::CalculatePosition() const
-	{
-		return m_FocalPoint - GetForwardDirection() * m_ZoomLevel;
-	}
-
 }

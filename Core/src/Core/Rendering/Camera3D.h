@@ -44,7 +44,6 @@ namespace KMG
 		glm::vec3 GetUpDirection() const;
 		glm::vec3 GetRightDirection() const;
 		glm::vec3 GetForwardDirection() const;
-		glm::vec3 CalculatePosition() const;
 	private:
 		float m_FOV = 60.0f;
 		float m_AspectRatio = 1.77778;
@@ -55,7 +54,6 @@ namespace KMG
 		glm::mat4 m_ProjectionMatrix = glm::mat4(0);
 		glm::mat4 m_ViewMatrix = glm::mat4(0);
 		glm::vec3 m_Position = glm::vec3(0);
-		glm::vec3 m_FocalPoint = glm::vec3(0);
 
 		float m_Pitch = 0.0f;
 		float m_Yaw = 0.0f;
