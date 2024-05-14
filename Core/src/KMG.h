@@ -10,3 +10,7 @@
 #include "Core/Rendering/VertexArray.h"
 #include "Core/Rendering/Shader.h"
 #include "Core/Rendering/Texture.h"
+#include "Core/Rendering/Camera2D.h"
+#include "Core/Utilities/CameraController2D.h"
+#include "Core/Rendering/Camera3D.h"
+#include "Core/Utilities/CameraController3D.h"

@@ -15,7 +15,10 @@ namespace KMG
 		WindowResized,
 		WindowClosed,
 		KeyStateChanged,
-		MouseMoved
+		MouseMoved,
+		MouseScrolled,
+		MouseButtonPressed,
+		MouseButtonReleased,
 	};
 
 	class Event
@@ -25,6 +28,21 @@ namespace KMG
 		virtual ~Event() = default;
 
 		virtual EventType GetEventType() const = 0;
+	};
+
+	class EventDispatcher
+	{
+	public:
+		template<typename T, typename F>
+		static constexpr bool Dispatch(Event& e, const F& func)
+		{
+			if (e.GetEventType() == T::GetStaticType())
+				return func(static_cast<T&>(e));
+			return false;
+		}
+	private:
+		EventDispatcher() = default;
+		virtual ~EventDispatcher() = default;
 	};
 
 	class WindowResizeEvent : public Event
@@ -78,17 +96,42 @@ namespace KMG
 		double XPos, YPos;
 	};
 
-	class EventDispatcher
+	class MouseScrolledEvent : public Event
 	{
 	public:
-		template<typename T, typename F>
-		static constexpr bool Dispatch(Event& e, const F& func)
+		MouseScrolledEvent(float xOffset, float yOffset)
+			: XOffset(xOffset), YOffset(yOffset)
 		{
-			if (e.GetEventType() == T::GetStaticType())
-				return func(static_cast<T&>(e));
 		}
-	private:
-		EventDispatcher() = default;
-		virtual ~EventDispatcher() = default;
+
+		DEFINE_EVENT_CLASS_TYPE_METHODS(MouseScrolled)
+	public:
+		float XOffset, YOffset;
+	};
+
+	class MouseButtonPressedEvent : public Event
+	{
+	public:
+		MouseButtonPressedEvent(int button)
+			:Button(button)
+		{
+		}
+
+		DEFINE_EVENT_CLASS_TYPE_METHODS(MouseButtonPressed)
+	public:
+		int Button;
+	};
+
+	class MouseButtonReleasedEvent : public Event
+	{
+	public:
+		MouseButtonReleasedEvent(int button)
+			:Button(button)
+		{
+		}
+
+		DEFINE_EVENT_CLASS_TYPE_METHODS(MouseButtonReleased)
+	public:
+		int Button;
 	};
 }

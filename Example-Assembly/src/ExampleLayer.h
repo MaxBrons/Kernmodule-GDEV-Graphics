@@ -5,19 +5,18 @@
 class ExampleLayer : public KMG::ApplicationLayer
 {
 public:
-	ExampleLayer() = default;
+	ExampleLayer();
 	virtual ~ExampleLayer() = default;
 
 	void OnEnable() override;
 	void OnDisable() override;
-	void OnUpdate(double deltaTime) override;
+	void OnUpdate(double dt) override;
 	void OnEvent(KMG::Event& e) override;
-
-	bool OnKeyStateChanged(KMG::KeyEvent& e);
-	bool OnMouseMoved(KMG::MouseMovedEvent& e);
+private:
 	bool OnWindowResized(KMG::WindowResizeEvent& e);
 private:
 	KMG::s_ptr<KMG::VertexArray> m_VertexArray;
 	KMG::Shader m_Shader;
+	KMG::CameraController3D m_CameraController;
 	uint32_t m_Width, m_Height;
 };

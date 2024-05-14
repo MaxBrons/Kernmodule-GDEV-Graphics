@@ -87,6 +87,33 @@ namespace KMG
 			MouseMovedEvent event(xPos, yPos);
 			settings.OnEvent(event);
 			});
+
+		glfwSetMouseButtonCallback(m_NativeWindow, [](GLFWwindow* window, int button, int action, int mods) {
+			WindowSettings& settings = *(WindowSettings*)glfwGetWindowUserPointer(window);
+
+			switch (action)
+			{
+				case GLFW_PRESS:
+				{
+					MouseButtonPressedEvent event(button);
+					settings.OnEvent(event);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					MouseButtonReleasedEvent event(button);
+					settings.OnEvent(event);
+					break;
+				}
+			}
+			});
+
+		glfwSetScrollCallback(m_NativeWindow, [](GLFWwindow* window, double xOffset, double yOffset) {
+			WindowSettings& settings = *(WindowSettings*)glfwGetWindowUserPointer(window);
+
+			MouseScrolledEvent event((float)xOffset, (float)yOffset);
+			settings.OnEvent(event);
+			});
 	}
 
 	void WindowsWindow::Shutdown()

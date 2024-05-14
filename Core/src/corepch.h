@@ -16,5 +16,6 @@
 #include "Core.h"
 
 #ifdef KMG_PLATFORM_WINDOWS
+	#define NOMINMAX
 	#include <Windows.h>
 #endif

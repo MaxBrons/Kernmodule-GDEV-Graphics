@@ -1,6 +1,12 @@
 #include "ExampleLayer.h"
+#include "Core/Base/Input.h"
 
 #include <glfw/include/GLFW/glfw3.h> // Temp, for easy testing; TODO: Abstract out glfw code to Core.
+
+ExampleLayer::ExampleLayer()
+	:m_Width(1280), m_Height(720), m_CameraController(60.0f, m_Width / (float)m_Height, 0.1f, 1000.0f, 1.0f, 5.0f)
+{
+}
 
 //static GLuint VBO, VAO, EBO;
 void ExampleLayer::OnEnable()
@@ -79,6 +85,9 @@ void ExampleLayer::OnEnable()
 	m_VertexArray->SetIndexBuffer(indexBuffer);
 
 	m_Shader = KMG::Shader("assets/shaders/Vertex.glsl", "assets/shaders/Fragment.glsl");
+
+	glEnable(GL_DEPTH | GL_CULL_FACE);
+	glCullFace(GL_BACK);
 }
 
 void ExampleLayer::OnDisable()
@@ -86,21 +95,19 @@ void ExampleLayer::OnDisable()
 	KMG_LOG_WARN("OnDisable of Example Layer not yet implemented.");
 }
 
-void ExampleLayer::OnUpdate(double deltaTime)
+void ExampleLayer::OnUpdate(double dt)
 {
+	m_CameraController.OnUpdate(dt);
+
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glm::mat4 model(1.0f);
-	model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
-	model = glm::scale(model, glm::vec3(m_Width / m_Height));
-	model = glm::translate(model, glm::vec3(0));
-
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 2.5f, -5.0f), glm::vec3(0), glm::vec3(0, 1, 0));
-	glm::mat4 projection = glm::perspective(45.0f, m_Width / (float)m_Height, 0.1f, 1000.0f);
+	glm::mat4 cubeTransform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	m_Shader.Bind();
-	m_Shader.SetMat4("u_ViewProjection", projection * view * model);
+	m_Shader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
+	m_Shader.SetMat4("u_Transform", cubeTransform);
+	m_Shader.SetFloat4("u_Color", glm::vec4(1.0f));
 
 	m_VertexArray->Bind();
 	glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, 0);
@@ -108,39 +115,17 @@ void ExampleLayer::OnUpdate(double deltaTime)
 
 void ExampleLayer::OnEvent(KMG::Event& e)
 {
-	KMG::EventDispatcher::Dispatch<KMG::KeyEvent>(e, CREATE_EVENT_FN_REF(OnKeyStateChanged));
-	KMG::EventDispatcher::Dispatch<KMG::MouseMovedEvent>(e, CREATE_EVENT_FN_REF(OnMouseMoved));
 	KMG::EventDispatcher::Dispatch<KMG::WindowResizeEvent>(e, CREATE_EVENT_FN_REF(OnWindowResized));
-}
 
-bool ExampleLayer::OnKeyStateChanged(KMG::KeyEvent& e)
-{
-	KMG_LOG_WARN(
-		"Key event not yet implemented (key: " +
-		std::to_string(e.Key) + ", action: " +
-		std::to_string(e.Action) +
-		")"
-	);
-
-	return true;
-}
-
-bool ExampleLayer::OnMouseMoved(KMG::MouseMovedEvent& e)
-{
-	static bool s_Printed = false;
-	if (s_Printed)
-		return true;
-
-	KMG_LOG_WARN("Mouse moved event not yet implemented.");
-	s_Printed = true;
-
-	return true;
+	m_CameraController.OnEvent(e);
 }
 
 bool ExampleLayer::OnWindowResized(KMG::WindowResizeEvent& e)
 {
 	m_Width = e.Width;
 	m_Height = e.Height;
+
+	glViewport(0, 0, m_Width, m_Height);
 
 	return true;
 }

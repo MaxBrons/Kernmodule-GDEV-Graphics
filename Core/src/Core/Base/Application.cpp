@@ -1,14 +1,21 @@
 #include "corepch.h"
 #include "Application.h"
 #include "Platform/Windows/WindowsWindow.h"
+#include "Time.h"
 
 namespace KMG
 {
+	Application* Application::s_Instance = nullptr;
+
 	Application::Application(const ApplicationSettings& settings)
 		:m_Settings(settings)
 	{
+		s_Instance = this;
+
 		m_Window = Window::Create({ settings.Title });
 		m_Window->SetEventCallback(KMG_BIND_EVENT(OnEvent));
+
+		Time::Init();
 	}
 
 	void Application::Run()
@@ -23,9 +30,10 @@ namespace KMG
 
 		while (m_Running)
 		{
-			// TODO: Create Timer class to pass on high_res_clock delta time.
+			Time::OnUpdate();
+
 			for (auto& layer : m_Layers)
-				layer->OnUpdate(0);
+				layer->OnUpdate(Time::GetDeltaTime());
 
 			m_Window->OnUpdate();
 		}

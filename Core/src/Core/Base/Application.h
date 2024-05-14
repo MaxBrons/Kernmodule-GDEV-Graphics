@@ -23,11 +23,16 @@ namespace KMG
 		void OnEvent(Event& event);
 
 		bool IsRunning() const { return m_Running; }
+		Window& GetWindow() const { return *m_Window; }
+		
+		static Application& Get() { return *s_Instance; }
 	protected:
 		std::vector<ApplicationLayer*> m_Layers;
 	private:
 		u_ptr<Window> m_Window;
 		bool m_Running = true;
 		ApplicationSettings m_Settings;
+	private:
+		static Application* s_Instance;
 	};
 }
