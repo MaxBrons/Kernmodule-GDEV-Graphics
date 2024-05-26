@@ -18,6 +18,8 @@
 	#define KMG_CORE_ASSERT(x, message) if(!(x)) { KMG_LOG_ERROR(message); KMG_DEBUGBREAK(); }
 #else
 	#define KMG_DEBUGBREAK()
+	#define KMG_CORE_VALIDATE(x, message)
+	#define KMG_CORE_ASSERT(x, message)
 #endif
 
 #define KMG_BIND_EVENT(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }

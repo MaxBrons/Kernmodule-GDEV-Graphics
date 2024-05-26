@@ -11,6 +11,8 @@ namespace KMG {
 
 		void Bind();
 		void Unbind();
+
+		static s_ptr<Texture> Create(const std::string& path);
 	private:
 		GLuint m_RendererID;
 	};

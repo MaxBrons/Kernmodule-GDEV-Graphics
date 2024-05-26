@@ -14,3 +14,4 @@
 #include "Core/Utilities/CameraController2D.h"
 #include "Core/Rendering/Camera3D.h"
 #include "Core/Utilities/CameraController3D.h"
+#include "Core/Rendering/Renderer.h"

@@ -19,4 +19,5 @@ private:
 	KMG::Shader m_Shader;
 	KMG::CameraController3D m_CameraController;
 	uint32_t m_Width, m_Height;
+	KMG::s_ptr<KMG::Texture> m_MainTexture;
 };

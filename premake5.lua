@@ -7,7 +7,7 @@ workspace "Kernmodule-Graphics-Assembly"
 	{
 		"Debug",
 		"Release",
-        	"Distribution"
+        "Distribution"
 	}
 	
 	flags

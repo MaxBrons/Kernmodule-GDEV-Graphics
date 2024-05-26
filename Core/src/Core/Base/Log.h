@@ -22,6 +22,11 @@ namespace KMG
 	#define KMG_LOG_INFO(x)  ::KMG::Log::Info(x)
 	#define KMG_LOG_WARN(x)  ::KMG::Log::Warn(x)
 	#define KMG_LOG_ERROR(x) ::KMG::Log::Error(x)
+#else
+	#define KMG_LOG_TRACE(x)
+	#define KMG_LOG_INFO(x)
+	#define KMG_LOG_WARN(x)
+	#define KMG_LOG_ERROR(x)
 #endif
 }
 

@@ -53,10 +53,10 @@ void ExampleLayer::OnEnable()
 	};
 
 	auto vertexBuffer = KMG::VertexBuffer::Create(vertices, sizeof(vertices));
-	vertexBuffer->AddLayout(KMG::BufferLayout("aPosition", KMG::LayoutType::Float3, false));
-	vertexBuffer->AddLayout(KMG::BufferLayout("acolor", KMG::LayoutType::Float3, false));
-	vertexBuffer->AddLayout(KMG::BufferLayout("aTexCoords", KMG::LayoutType::Float2, false));
-	vertexBuffer->AddLayout(KMG::BufferLayout("aNormals", KMG::LayoutType::Float3, false));
+	vertexBuffer->AddLayout(KMG::BufferLayout("a_Position", KMG::LayoutType::Float3, false));
+	vertexBuffer->AddLayout(KMG::BufferLayout("a_Color", KMG::LayoutType::Float3, false));
+	vertexBuffer->AddLayout(KMG::BufferLayout("a_UV", KMG::LayoutType::Float2, false));
+	vertexBuffer->AddLayout(KMG::BufferLayout("a_Normals", KMG::LayoutType::Float3, false));
 	m_VertexArray->AddVertexBuffer(vertexBuffer);
 
 	uint32_t indices[] = {
@@ -85,9 +85,9 @@ void ExampleLayer::OnEnable()
 	m_VertexArray->SetIndexBuffer(indexBuffer);
 
 	m_Shader = KMG::Shader("assets/shaders/Vertex.glsl", "assets/shaders/Fragment.glsl");
+	m_MainTexture = KMG::Texture::Create("assets/textures/BoxTexture.png");
 
-	glEnable(GL_DEPTH | GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	KMG::Renderer::Initialize();
 }
 
 void ExampleLayer::OnDisable()
@@ -99,8 +99,8 @@ void ExampleLayer::OnUpdate(double dt)
 {
 	m_CameraController.OnUpdate(dt);
 
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	KMG::Renderer::SetClearColor({ 0.5f,0.5f,0.5f, 1.0f });
+	KMG::Renderer::Clear();
 
 	glm::mat4 cubeTransform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -109,8 +109,8 @@ void ExampleLayer::OnUpdate(double dt)
 	m_Shader.SetMat4("u_Transform", cubeTransform);
 	m_Shader.SetFloat4("u_Color", glm::vec4(1.0f));
 
-	m_VertexArray->Bind();
-	glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, 0);
+	m_MainTexture->Bind();
+	KMG::Renderer::DrawIndexed(m_VertexArray, m_VertexArray->GetIndexBuffer()->GetCount());
 }
 
 void ExampleLayer::OnEvent(KMG::Event& e)
