@@ -10,6 +10,11 @@ namespace KMG
 		return KMG::MakeUnique<WindowsWindow>(settings);
 	}
 
+	static void GLFWErrorCallback(int error, const char* description)
+	{
+		KMG_LOG_ERROR("GLFW Error (" + std::to_string(error) + "):" + std::string(description));
+	}
+
 	WindowsWindow::WindowsWindow(const WindowProperties& settings)
 	{
 		Init(settings);
@@ -40,9 +45,12 @@ namespace KMG
 		int result = glfwInit();
 		KMG_CORE_ASSERT(result, "Could not initialize GLFW.");
 
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+#ifdef KMG_DEBUG
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
+		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
 		m_NativeWindow = glfwCreateWindow(settings.Width, settings.Height, settings.Title.c_str(), nullptr, nullptr);
 		KMG_CORE_ASSERT(m_NativeWindow, "Could not create the GLFW window.");
@@ -52,9 +60,7 @@ namespace KMG
 		result = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		KMG_CORE_ASSERT(result, "Could not initialize GLAD.");
 
-		glfwSetErrorCallback([](int error, const char* description) {
-			KMG_LOG_ERROR("GLFW Error (" + std::to_string(error) + "): " + description);
-			});
+		glfwSetErrorCallback(GLFWErrorCallback);
 
 		glfwSetWindowUserPointer(m_NativeWindow, &m_Settings);
 

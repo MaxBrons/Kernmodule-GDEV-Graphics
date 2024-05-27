@@ -32,7 +32,7 @@ namespace KMG
 		glAttachShader(m_ShaderID, vertexShader);
 		glAttachShader(m_ShaderID, fragmentShader);
 		glLinkProgram(m_ShaderID);
-		
+
 		glGetProgramiv(m_ShaderID, GL_LINK_STATUS, &success);
 		KMG_CORE_VALIDATE(success, "CORE::SHADER: Failed to link shader");
 
@@ -97,6 +97,6 @@ namespace KMG
 
 	void Shader::SetMat4(const std::string& name, const glm::mat4& value)
 	{
-		glUniformMatrix4fv(glGetUniformLocation(m_ShaderID, name.c_str()),1, GL_FALSE, glm::value_ptr(value));
+		glUniformMatrix4fv(glGetUniformLocation(m_ShaderID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 	}
 }

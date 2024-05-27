@@ -3,17 +3,18 @@
 
 #include <string>
 
-namespace KMG {
-	class Texture {
+namespace KMG
+{
+	class Texture
+	{
 	public:
 		Texture(const std::string& path);
 		virtual ~Texture() = default;
 
-		void Bind(uint32_t index = 0);
-		void Unbind();
+		void Bind(uint32_t slot = 0);
 
 		static s_ptr<Texture> Create(const std::string& path);
 	private:
-		GLuint m_RendererID;
+		uint32_t m_RendererID;
 	};
 }

@@ -50,12 +50,12 @@ namespace KMG
 	void Camera3D::Zoom(float delta)
 	{
 		m_ZoomLevel -= delta * 0.1f;
-
 		if (m_ZoomLevel < 1.0f)
 		{
-			m_Position += GetForwardDirection();
 			m_ZoomLevel = 1.0f;
 		}
+
+		m_Position += GetForwardDirection() * delta;
 	}
 
 	glm::quat Camera3D::GetOrientation() const

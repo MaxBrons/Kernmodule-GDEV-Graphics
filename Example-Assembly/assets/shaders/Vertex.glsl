@@ -16,8 +16,6 @@ out vec3 v_VertexColor;
 
 void main()
 {
-	gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
-
 	v_PixelCoords = mat3(u_Transform) * a_Position;
 	vec3 normal = normalize(mat3(u_Transform) * a_Normal);
 	vec3 tangent = normalize(mat3(u_Transform) * a_Tangent);
@@ -27,4 +25,6 @@ void main()
 
 	v_UV = a_UV;
 	v_VertexColor = a_Color;
+
+	gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
 }
