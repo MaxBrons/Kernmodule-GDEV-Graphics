@@ -50,6 +50,26 @@ namespace KMG
 		glUseProgram(0);
 	}
 
+	void Shader::SetInt(const std::string& name, int value)
+	{
+		glUniform1i(glGetAttribLocation(m_ShaderID, name.c_str()), value);
+	}
+
+	void Shader::SetInt2(const std::string& name, const glm::i32vec2& value)
+	{
+		glUniform2iv(glGetUniformLocation(m_ShaderID, name.c_str()), 1, glm::value_ptr(value));
+	}
+
+	void Shader::SetInt3(const std::string& name, const glm::i32vec3& value)
+	{
+		glUniform3iv(glGetUniformLocation(m_ShaderID, name.c_str()), 1, glm::value_ptr(value));
+	}
+
+	void Shader::SetInt4(const std::string& name, const glm::i32vec4& value)
+	{
+		glUniform4iv(glGetUniformLocation(m_ShaderID, name.c_str()), 1, glm::value_ptr(value));
+	}
+
 	void Shader::SetFloat(const std::string& name, float value)
 	{
 		glUniform1f(glGetAttribLocation(m_ShaderID, name.c_str()), value);

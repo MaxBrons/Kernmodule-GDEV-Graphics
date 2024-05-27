@@ -9,7 +9,7 @@ namespace KMG {
 		Texture(const std::string& path);
 		virtual ~Texture() = default;
 
-		void Bind();
+		void Bind(uint32_t index = 0);
 		void Unbind();
 
 		static s_ptr<Texture> Create(const std::string& path);

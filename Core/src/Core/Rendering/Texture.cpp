@@ -33,9 +33,9 @@ namespace KMG
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void Texture::Bind()
+	void Texture::Bind(uint32_t index)
 	{
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0 + index);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 	}
 
