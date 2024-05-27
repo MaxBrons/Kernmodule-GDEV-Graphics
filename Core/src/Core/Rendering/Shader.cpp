@@ -57,17 +57,17 @@ namespace KMG
 
 	void Shader::SetFloat2(const std::string& name, const glm::vec2& value)
 	{
-		glUniform2f(glGetAttribLocation(m_ShaderID, name.c_str()), value.x, value. y);
+		glUniform2fv(glGetUniformLocation(m_ShaderID, name.c_str()), 1, glm::value_ptr(value));
 	}
 
 	void Shader::SetFloat3(const std::string& name, const glm::vec3& value)
 	{
-		glUniform3f(glGetAttribLocation(m_ShaderID, name.c_str()), value.x, value.y, value.z);
+		glUniform3fv(glGetUniformLocation(m_ShaderID, name.c_str()), 1, glm::value_ptr(value));
 	}
 
 	void Shader::SetFloat4(const std::string& name, const glm::vec4& value)
 	{
-		glUniform4f(glGetUniformLocation(m_ShaderID, name.c_str()), value.x, value.y, value.z, value.w);
+		glUniform4fv(glGetUniformLocation(m_ShaderID, name.c_str()), 1, glm::value_ptr(value));
 	}
 
 	void Shader::SetMat3(const std::string& name, const glm::mat3& value)

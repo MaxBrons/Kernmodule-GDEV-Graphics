@@ -15,7 +15,7 @@ void ExampleLayer::OnEnable()
 	m_VertexArray = KMG::VertexArray::Create();
 
 	float vertices[] = {
-		// positions            //colors            // tex coords   // normals
+		// positions         //colors            // tex coords   // normals
 		0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,   1.f, 0.f,       0.f, -1.f, 0.f,
 		0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f,   1.f, 1.f,       0.f, -1.f, 0.f,
 		-0.5f, -0.5f, 0.5f,  1.0f, 1.0f, 1.0f,   0.f, 1.f,       0.f, -1.f, 0.f,
@@ -84,8 +84,12 @@ void ExampleLayer::OnEnable()
 	auto indexBuffer = KMG::IndexBuffer::Create(indices, sizeof(indices));
 	m_VertexArray->SetIndexBuffer(indexBuffer);
 
+	m_LightPosition = glm::vec3(-3, 3, 1);
+
 	m_Shader = KMG::Shader("assets/shaders/Vertex.glsl", "assets/shaders/Fragment.glsl");
 	m_MainTexture = KMG::Texture::Create("assets/textures/BoxTexture.png");
+
+	m_CameraController.GetCamera().Move({ 0.0f, 1.0f, -2.0f });
 
 	KMG::Renderer::Initialize();
 }
@@ -107,7 +111,7 @@ void ExampleLayer::OnUpdate(double dt)
 	m_Shader.Bind();
 	m_Shader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
 	m_Shader.SetMat4("u_Transform", cubeTransform);
-	m_Shader.SetFloat4("u_Color", glm::vec4(1.0f));
+	m_Shader.SetFloat3("u_LightPosition", m_LightPosition);
 
 	m_MainTexture->Bind();
 	KMG::Renderer::DrawIndexed(m_VertexArray, m_VertexArray->GetIndexBuffer()->GetCount());
