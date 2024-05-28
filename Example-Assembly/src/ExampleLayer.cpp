@@ -11,9 +11,6 @@ ExampleLayer::ExampleLayer()
 //static GLuint VBO, VAO, EBO;
 void ExampleLayer::OnEnable()
 {
-	//KMG_LOG_WARN("OnEnable of Example Layer not yet implemented.");
-	m_VertexArray = KMG::VertexArray::Create();
-
 	float vertices[] = {
 		// positions            //colors            // tex coords   // normals          //tangents      //bitangents
 		0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,   1.f, 1.f,       0.f, -1.f, 0.f,     -1.f, 0.f, 0.f,  0.f, 0.f, 1.f,
@@ -60,8 +57,7 @@ void ExampleLayer::OnEnable()
 	vertexBuffer->AddLayout(KMG::BufferLayout("a_Normal", KMG::LayoutType::Float3, false));
 	vertexBuffer->AddLayout(KMG::BufferLayout("a_Tangent", KMG::LayoutType::Float3, false));
 	vertexBuffer->AddLayout(KMG::BufferLayout("a_Bitangent", KMG::LayoutType::Float3, false));
-	m_VertexArray->AddVertexBuffer(vertexBuffer);
-
+	
 	uint32_t indices[] = {
 		// DOWN
 		0, 1, 2,   // first triangle
@@ -83,20 +79,29 @@ void ExampleLayer::OnEnable()
 		22, 13, 23,    // second triangle
 	};
 
-	m_VertexArray->Bind();
 	auto indexBuffer = KMG::IndexBuffer::Create(indices, sizeof(indices));
-	m_VertexArray->SetIndexBuffer(indexBuffer);
 
-	m_LightPosition = glm::vec3(-3.0f, 1.0f, 3);
+	m_CrateVertexArray = KMG::VertexArray::Create();
+	m_CrateVertexArray->AddVertexBuffer(vertexBuffer);
+	m_CrateVertexArray->SetIndexBuffer(indexBuffer);
 
-	m_BoxShader = KMG::Shader("assets/shaders/Vertex.glsl", "assets/shaders/Fragment.glsl");
-	//m_FlatColorShader = KMG::Shader("assets/shaders/FlatColor-Vert.glsl", "assets/shaders/FlatColor-Frag.glsl");
+	m_LightVertexArray = KMG::VertexArray::Create();
+	m_LightVertexArray->AddVertexBuffer(vertexBuffer);
+	m_LightVertexArray->SetIndexBuffer(indexBuffer);
 
+	// ----- Crate ----- //
+	m_CrateShader = KMG::Shader("assets/shaders/Vertex.glsl", "assets/shaders/Fragment.glsl");
 	m_MainTexture = KMG::Texture::Create("assets/textures/Box_Albedo.png");
 	m_NormalTexture = KMG::Texture::Create("assets/textures/Box_Normal.png");
 
+	// ----- Light ----- //
+	m_FlatColorShader = KMG::Shader("assets/shaders/FlatColor-Vert.glsl", "assets/shaders/FlatColor-Frag.glsl");
+	m_LightPosition = glm::vec3(-3.0f, 1.0f, 3);
+
+	// ----- Rendering ----- //
 	m_CameraController.GetCamera().Move({ 0.0f, 1.0f, -2.0f });
 
+	KMG::Cursor::SetCursorVisible(false);
 	KMG::Renderer::Initialize();
 }
 
@@ -107,37 +112,51 @@ void ExampleLayer::OnDisable()
 
 void ExampleLayer::OnUpdate(double dt)
 {
+	// Update camera movement.
 	m_CameraController.OnUpdate(dt);
 
+	// Clear the screen.
 	KMG::Renderer::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	KMG::Renderer::Clear();
 
-	glm::mat4 cubeTransform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	// ----- Render Crate (box) ----- //
+	glm::mat4 crateTransform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	m_BoxShader.Bind();
+	m_CrateShader.Bind();
 	m_MainTexture->Bind(0);
 	m_NormalTexture->Bind(1);
 
-	m_BoxShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
-	m_BoxShader.SetMat4("u_Transform", cubeTransform);
-	m_BoxShader.SetFloat3("u_LightPosition", m_LightPosition);
-	m_BoxShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
+	m_CrateShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
+	m_CrateShader.SetMat4("u_Transform", crateTransform);
+	m_CrateShader.SetFloat3("u_LightPosition", m_LightPosition);
+	m_CrateShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
 
 	float time = static_cast<float>(glfwGetTime());
 	float sin = std::sinf(time) / 2 + 0.5f;
 	float cos = std::cosf(time) / 2 + 0.5f;
 	float tan = std::atan(time) / 2 + 0.5f;
 	glm::vec3 lightColor = m_RandomLightColour ? glm::normalize(glm::vec3(sin, cos, tan)) : m_LightColour;
-	
-	m_BoxShader.SetFloat3("u_LightColor", lightColor);
 
-	KMG::Renderer::DrawIndexed(m_VertexArray, m_VertexArray->GetIndexBuffer()->GetCount());
+	m_CrateShader.SetFloat3("u_LightColor", lightColor);
+	KMG::Renderer::DrawIndexed(m_CrateVertexArray, m_CrateVertexArray->GetIndexBuffer()->GetCount());
+
+	// ----- Render Light (box) ----- //
+	glm::mat4 lightTransform = glm::translate(glm::mat4(1.0f), m_LightPosition);
+	lightTransform = glm::scale(lightTransform, glm::vec3(0.5f));
+
+	m_FlatColorShader.Bind();
+	m_FlatColorShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
+	m_FlatColorShader.SetMat4("u_Transform", lightTransform);
+	m_FlatColorShader.SetFloat3("u_Color", lightColor != glm::vec3() ? lightColor : glm::vec3(0.75f));
+
+	KMG::Renderer::DrawIndexed(m_LightVertexArray, m_LightVertexArray->GetIndexBuffer()->GetCount());
 }
 
 void ExampleLayer::OnEvent(KMG::Event& e)
 {
 	KMG::EventDispatcher::Dispatch<KMG::WindowResizeEvent>(e, CREATE_EVENT_FN_REF(OnWindowResized));
 	KMG::EventDispatcher::Dispatch<KMG::KeyEvent>(e, CREATE_EVENT_FN_REF(OnKey));
+	KMG::EventDispatcher::Dispatch<KMG::MouseButtonPressedEvent>(e, CREATE_EVENT_FN_REF(OnMouseButtonPressed));
 
 	m_CameraController.OnEvent(e);
 }
@@ -156,7 +175,8 @@ bool ExampleLayer::OnKey(KMG::KeyEvent& e)
 {
 	if (e.Action == GLFW_RELEASE)
 		return false;
-	
+
+	// Move the light around.
 	switch (e.Key)
 	{
 		case KMG::Key::Left: m_LightPosition -= glm::vec3(1.0f, 0.0f, 0.0f); break;
@@ -165,9 +185,11 @@ bool ExampleLayer::OnKey(KMG::KeyEvent& e)
 		case KMG::Key::Down: m_LightPosition -= glm::vec3(0.0f, 0.0f, 1.0f); break;
 	}
 
+	// Switch between random light color.
 	if (e.Key == KMG::Key::Num5)
 		m_RandomLightColour = !m_RandomLightColour;
 
+	// Set the light color to red, green or blue.
 	if (!m_RandomLightColour)
 	{
 		switch (e.Key)
@@ -179,6 +201,21 @@ bool ExampleLayer::OnKey(KMG::KeyEvent& e)
 		}
 	}
 
-	//KMG_LOG_TRACE("x: " + std::to_string(m_LightPosition.x) + "y: " + std::to_string(m_LightPosition.y) + "z: " + std::to_string(m_LightPosition.z));
+	// Show the cursor again when pressing escape.
+	if (e.Key == KMG::Key::Escape)
+		KMG::Cursor::SetCursorVisible(true);
+
+	return true;
+}
+
+bool ExampleLayer::OnMouseButtonPressed(KMG::MouseButtonPressedEvent& e)
+{
+	if (e.Button != KMG::Mouse::ButtonLeft)
+		return false;
+
+	// Hide the cursor again when focussing on the window again.
+	if (KMG::Cursor::GetCursorVisible())
+		KMG::Cursor::SetCursorVisible(false);
+
 	return true;
 }

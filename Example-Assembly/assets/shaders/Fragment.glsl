@@ -33,7 +33,7 @@ void main()
 	vertColor = vertColor * min(lightValue, 1.0f) + specular;
 
 	vec3 lightColor = u_LightColor * texture(u_AlbedoTexture, v_UV).rgb;
-	lightColor = lightColor * min(lightValue, 1.0f) + specular;
+	lightColor = lightColor * min(lightValue, 1.0f) + specular * u_LightColor;
 
 	gl_FragColor = vec4(vertColor + lightColor, 1.0f);
 }

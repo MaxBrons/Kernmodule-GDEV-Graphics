@@ -15,9 +15,10 @@ public:
 private:
 	bool OnWindowResized(KMG::WindowResizeEvent& e);
 	bool OnKey(KMG::KeyEvent& e);
+	bool OnMouseButtonPressed(KMG::MouseButtonPressedEvent& e);
 private:
-	KMG::s_ptr<KMG::VertexArray> m_VertexArray;
-	KMG::Shader m_BoxShader, m_FlatColorShader;
+	KMG::s_ptr<KMG::VertexArray> m_CrateVertexArray, m_LightVertexArray;
+	KMG::Shader m_CrateShader, m_FlatColorShader;
 	KMG::CameraController3D m_CameraController;
 	uint32_t m_Width, m_Height;
 
