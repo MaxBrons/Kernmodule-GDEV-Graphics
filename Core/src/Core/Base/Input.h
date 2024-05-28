@@ -84,4 +84,13 @@ namespace KMG
 		static bool GetMouseButtonDown(MouseCode button);
 		static glm::vec2 GetMousePosition();
 	};
+
+	class Cursor
+	{
+	public:
+		static bool GetCursorVisible() { return m_Visible; }
+		static void SetCursorVisible(bool visible);
+	private:
+		static bool m_Visible;
+	};
 }
