@@ -17,7 +17,7 @@ private:
 	bool OnKey(KMG::KeyEvent& e);
 	bool OnMouseButtonPressed(KMG::MouseButtonPressedEvent& e);
 private:
-	KMG::s_ptr<KMG::VertexArray> m_CrateVertexArray, m_LightVertexArray;
+	KMG::s_ptr<KMG::VertexArray> m_BoxVertexArray;
 	KMG::Shader m_CrateShader, m_FlatColorShader;
 	KMG::CameraController3D m_CameraController;
 	uint32_t m_Width, m_Height;
@@ -26,6 +26,6 @@ private:
 	KMG::s_ptr<KMG::Texture> m_NormalTexture;
 
 	glm::vec3 m_LightPosition = {};
-	glm::vec3 m_LightColour = {};
+	glm::vec3 m_LightColour = glm::vec3(1.0f);
 	bool m_RandomLightColour = false;
 };

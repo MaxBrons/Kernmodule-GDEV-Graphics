@@ -81,13 +81,10 @@ void ExampleLayer::OnEnable()
 
 	auto indexBuffer = KMG::IndexBuffer::Create(indices, sizeof(indices));
 
-	m_CrateVertexArray = KMG::VertexArray::Create();
-	m_CrateVertexArray->AddVertexBuffer(vertexBuffer);
-	m_CrateVertexArray->SetIndexBuffer(indexBuffer);
-
-	m_LightVertexArray = KMG::VertexArray::Create();
-	m_LightVertexArray->AddVertexBuffer(vertexBuffer);
-	m_LightVertexArray->SetIndexBuffer(indexBuffer);
+	// Reuse this box for the light and crate.
+	m_BoxVertexArray = KMG::VertexArray::Create();
+	m_BoxVertexArray->AddVertexBuffer(vertexBuffer);
+	m_BoxVertexArray->SetIndexBuffer(indexBuffer);
 
 	// ----- Crate ----- //
 	m_CrateShader = KMG::Shader("assets/shaders/Vertex.glsl", "assets/shaders/Fragment.glsl");
@@ -119,6 +116,13 @@ void ExampleLayer::OnUpdate(double dt)
 	KMG::Renderer::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	KMG::Renderer::Clear();
 
+	// Calculate a random color or use the active static light color.
+	float time = static_cast<float>(glfwGetTime());
+	float sin = std::sinf(time) / 2 + 0.5f;
+	float cos = std::cosf(time) / 2 + 0.5f;
+	float tan = std::atan(time) / 2 + 0.5f;
+	glm::vec3 lightColor = m_RandomLightColour ? glm::normalize(glm::vec3(sin, cos, tan)) : m_LightColour;
+
 	// ----- Render Crate (box) ----- //
 	glm::mat4 crateTransform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -130,15 +134,9 @@ void ExampleLayer::OnUpdate(double dt)
 	m_CrateShader.SetMat4("u_Transform", crateTransform);
 	m_CrateShader.SetFloat3("u_LightPosition", m_LightPosition);
 	m_CrateShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
-
-	float time = static_cast<float>(glfwGetTime());
-	float sin = std::sinf(time) / 2 + 0.5f;
-	float cos = std::cosf(time) / 2 + 0.5f;
-	float tan = std::atan(time) / 2 + 0.5f;
-	glm::vec3 lightColor = m_RandomLightColour ? glm::normalize(glm::vec3(sin, cos, tan)) : m_LightColour;
-
 	m_CrateShader.SetFloat3("u_LightColor", lightColor);
-	KMG::Renderer::DrawIndexed(m_CrateVertexArray, m_CrateVertexArray->GetIndexBuffer()->GetCount());
+
+	KMG::Renderer::DrawIndexed(m_BoxVertexArray, m_BoxVertexArray->GetIndexBuffer()->GetCount());
 
 	// ----- Render Light (box) ----- //
 	glm::mat4 lightTransform = glm::translate(glm::mat4(1.0f), m_LightPosition);
@@ -149,7 +147,7 @@ void ExampleLayer::OnUpdate(double dt)
 	m_FlatColorShader.SetMat4("u_Transform", lightTransform);
 	m_FlatColorShader.SetFloat3("u_Color", lightColor != glm::vec3() ? lightColor : glm::vec3(0.75f));
 
-	KMG::Renderer::DrawIndexed(m_LightVertexArray, m_LightVertexArray->GetIndexBuffer()->GetCount());
+	KMG::Renderer::DrawIndexed(m_BoxVertexArray, m_BoxVertexArray->GetIndexBuffer()->GetCount());
 }
 
 void ExampleLayer::OnEvent(KMG::Event& e)
@@ -197,7 +195,7 @@ bool ExampleLayer::OnKey(KMG::KeyEvent& e)
 			case KMG::Key::Num1: m_LightColour = { 1.0f, 0.0f, 0.0f }; break;
 			case KMG::Key::Num2: m_LightColour = { 0.0f, 1.0f, 0.0f }; break;
 			case KMG::Key::Num3: m_LightColour = { 0.0f, 0.0f, 1.0f }; break;
-			case KMG::Key::Num4: m_LightColour = { 0.0f, 0.0f, 0.0f }; break;
+			case KMG::Key::Num4: m_LightColour = { 1.0f, 1.0f, 1.0f }; break;
 		}
 	}
 
