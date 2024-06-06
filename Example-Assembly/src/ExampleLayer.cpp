@@ -87,13 +87,16 @@ void ExampleLayer::OnEnable()
 	m_BoxVertexArray->SetIndexBuffer(indexBuffer);
 
 	// ----- Crate ----- //
-	m_CrateShader = KMG::Shader("assets/shaders/Vertex.glsl", "assets/shaders/Fragment.glsl");
+	m_CrateShader = KMG::Shader("assets/shaders/Box-Vertex.glsl", "assets/shaders/Box-Fragment.glsl");
 	m_MainTexture = KMG::Texture::Create("assets/textures/Box_Albedo.png");
 	m_NormalTexture = KMG::Texture::Create("assets/textures/Box_Normal.png");
 
 	// ----- Light ----- //
 	m_FlatColorShader = KMG::Shader("assets/shaders/FlatColor-Vert.glsl", "assets/shaders/FlatColor-Frag.glsl");
 	m_LightPosition = glm::vec3(-3.0f, 1.0f, 3);
+
+	// ----- Skybox ------ //
+	m_SkyboxShader = KMG::Shader("assets/shaders/Skybox-Vertex.glsl", "assets/shaders/Skybox-Fragment.glsl");
 
 	// ----- Rendering ----- //
 	m_CameraController.GetCamera().Move({ 0.0f, 1.0f, -2.0f });
@@ -122,6 +125,24 @@ void ExampleLayer::OnUpdate(double dt)
 	float cos = std::cosf(time) / 2 + 0.5f;
 	float tan = std::atan(time) / 2 + 0.5f;
 	glm::vec3 lightColor = m_RandomLightColour ? glm::normalize(glm::vec3(sin, cos, tan)) : m_LightColour;
+
+	// ----- Render Skybox ----- //
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	glm::mat4 skyboxTransform = glm::translate(glm::mat4(1.0f), m_CameraController.GetCamera().GetPosition());
+	skyboxTransform = glm::scale(skyboxTransform, glm::vec3(10.0f, 10.0f, 10.0f));
+
+	m_SkyboxShader.Bind();
+	m_SkyboxShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
+	m_SkyboxShader.SetMat4("u_Transform", skyboxTransform);
+	m_SkyboxShader.SetFloat3("u_LightDirection", glm::normalize(m_LightPosition));
+	m_SkyboxShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
+
+	KMG::Renderer::DrawIndexed(m_BoxVertexArray, m_BoxVertexArray->GetIndexBuffer()->GetCount());
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
 	// ----- Render Crate (box) ----- //
 	glm::mat4 crateTransform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));

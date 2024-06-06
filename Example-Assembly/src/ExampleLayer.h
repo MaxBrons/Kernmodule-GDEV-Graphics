@@ -18,7 +18,7 @@ private:
 	bool OnMouseButtonPressed(KMG::MouseButtonPressedEvent& e);
 private:
 	KMG::s_ptr<KMG::VertexArray> m_BoxVertexArray;
-	KMG::Shader m_CrateShader, m_FlatColorShader;
+	KMG::Shader m_CrateShader, m_FlatColorShader, m_SkyboxShader;
 	KMG::CameraController3D m_CameraController;
 	uint32_t m_Width, m_Height;
 
