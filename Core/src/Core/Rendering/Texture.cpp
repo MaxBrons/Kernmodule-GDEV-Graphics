@@ -15,18 +15,17 @@ namespace KMG
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		stbi_set_flip_vertically_on_load(1);
-		int width, height, numChannels;
-		stbi_uc* data = stbi_load(path.c_str(), &width, &height, &numChannels, 4);
+		stbi_uc* data = stbi_load(path.c_str(), &m_Width, &m_Height, &m_Channels, 4);
 		
 		KMG_CORE_ASSERT(data, "Failed to load texture at path: " + std::string(path));
 
-		switch (numChannels)
+		switch (m_Channels)
 		{
 			case 3:
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 				break;
 			case 4:
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 				break;
 		}
 
