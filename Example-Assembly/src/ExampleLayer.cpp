@@ -3,7 +3,7 @@
 #include "Base/Time.h"
 
 ExampleLayer::ExampleLayer()
-	:m_Width(1280), m_Height(720), m_CameraController(60.0f, m_Width / (float)m_Height, 0.1f, 1000.0f, 1.0f, 15.0f)
+	:m_Width(1280), m_Height(720), m_CameraController(60.0f, 1280.0f / 720.0f, 0.1f, 1000.0f, 5.0f, 15.0f)
 {
 }
 
@@ -92,7 +92,7 @@ void ExampleLayer::OnEnable()
 
 	// ----- Light ----- //
 	m_FlatColorShader = KMG::Shader("assets/shaders/FlatColor-Vert.glsl", "assets/shaders/FlatColor-Frag.glsl");
-	m_LightPosition = glm::vec3(-3.0f, 1.0f, 3);
+	m_LightDirection = glm::vec3(-3.0f, 1.0f, 3);
 
 	// ----- Skybox ------ //
 	m_SkyboxShader = KMG::Shader("assets/shaders/Skybox-Vertex.glsl", "assets/shaders/Skybox-Fragment.glsl");
@@ -108,6 +108,7 @@ void ExampleLayer::OnEnable()
 
 void ExampleLayer::SetupTerrain()
 {
+	m_TerrainSize = glm::vec3(.1f, 5, .1f);
 	m_TerrainHeightmapTexture = KMG::Texture::Create("assets/textures/Terrain_Heightmap.png");
 	m_TerrainNormalTexture = KMG::Texture::Create("assets/textures/Terrain_Normal.png");
 
@@ -120,15 +121,18 @@ void ExampleLayer::SetupTerrain()
 
 	{
 		int index = 0;
-		for (uint32_t i = 0; i < (width * height); i++) {
+		for (uint32_t i = 0; i < (width * height); i++)
+		{
 			// TODO: calculate x/z values
 			uint32_t x = i % width;
 			uint32_t z = i / width;
 
+			float texHeight = (float)m_TerrainHeightmapTexture->GetData()[i * m_TerrainHeightmapTexture->GetChannelCount()];
+
 			// TODO: set position
-			vertices[index++] = x * m_XZScale;
-			vertices[index++] = 0;
-			vertices[index++] = z * m_XZScale;
+			vertices[index++] = x * m_TerrainSize.x;
+			vertices[index++] = texHeight / 255.0f * m_TerrainSize.y;
+			vertices[index++] = z * m_TerrainSize.z;
 			// TODO: set normal
 			vertices[index++] = 0;
 			vertices[index++] = 1;
@@ -144,7 +148,8 @@ void ExampleLayer::SetupTerrain()
 
 	{
 		uint32_t index = 0;
-		for (uint32_t i = 0; i < (width - 1) * (height - 1); i++) {
+		for (uint32_t i = 0; i < (width - 1) * (height - 1); i++)
+		{
 			uint32_t x = i % (width - 1);
 			uint32_t z = i / (width - 1);
 
@@ -157,16 +162,15 @@ void ExampleLayer::SetupTerrain()
 			indices[index++] = vertex + 1;
 		}
 	}
+
 	m_TerrainVertexArray = KMG::VertexArray::Create();
 
-	auto vertexBuffer = KMG::VertexBuffer::Create(vertices, sizeof(*vertices));
+	auto vertexBuffer = KMG::VertexBuffer::Create(vertices, (width * height) * stride * (uint32_t)sizeof(uint32_t));
 	vertexBuffer->AddLayout(KMG::BufferLayout("a_Position", KMG::LayoutType::Float3, false));
 	vertexBuffer->AddLayout(KMG::BufferLayout("a_Normal", KMG::LayoutType::Float3, false));
 	vertexBuffer->AddLayout(KMG::BufferLayout("a_UV", KMG::LayoutType::Float2, false));
 
-	auto indexBuffer = KMG::IndexBuffer::Create(&*indices, sizeof(*indices));
-	KMG_LOG_INFO(std::to_string(sizeof(indices)));
-	KMG_LOG_INFO(std::to_string(sizeof(*indices)));
+	auto indexBuffer = KMG::IndexBuffer::Create(indices, (width - 1) * (height - 1) * 6 * (uint32_t)sizeof(uint32_t));
 
 	m_TerrainVertexArray->AddVertexBuffer(vertexBuffer);
 	m_TerrainVertexArray->SetIndexBuffer(indexBuffer);
@@ -181,7 +185,7 @@ void ExampleLayer::OnDisable()
 {
 	KMG_LOG_WARN("OnDisable of Example Layer not yet implemented.");
 }
-
+static float angle = 0, h = 0.5f;
 void ExampleLayer::OnUpdate(double dt)
 {
 	// Update camera movement.
@@ -192,11 +196,14 @@ void ExampleLayer::OnUpdate(double dt)
 	KMG::Renderer::Clear();
 
 	// Calculate a random color or use the active static light color.
-	float time = KMG::Time::GetTime();
+	float time = (float)KMG::Time::GetTime();
 	float sin = std::sinf(time) / 2 + 0.5f;
 	float cos = std::cosf(time) / 2 + 0.5f;
 	float tan = std::atan(time) / 2 + 0.5f;
 	glm::vec3 lightColor = m_RandomLightColour ? glm::normalize(glm::vec3(sin, cos, tan)) : m_LightColour;
+
+	// Auto rotate the light around world center point.
+	m_LightDirection = glm::normalize(glm::vec3(glm::sin(angle), h, glm::cos(angle)));
 
 	// ----- Render Skybox (box) ----- //
 	glDisable(GL_DEPTH);
@@ -208,7 +215,7 @@ void ExampleLayer::OnUpdate(double dt)
 	m_SkyboxShader.Bind();
 	m_SkyboxShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
 	m_SkyboxShader.SetMat4("u_Transform", skyboxTransform);
-	m_SkyboxShader.SetFloat3("u_LightDirection", glm::normalize(m_LightPosition));
+	m_SkyboxShader.SetFloat3("u_LightDirection", m_LightDirection);
 	m_SkyboxShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
 
 	KMG::Renderer::DrawIndexed(m_BoxVertexArray, m_BoxVertexArray->GetIndexBuffer()->GetCount());
@@ -219,19 +226,19 @@ void ExampleLayer::OnUpdate(double dt)
 	glm::mat4 crateTransform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	m_CrateShader.Bind();
-	m_CrateAlbedoTexture->Bind(0);
+	m_CrateAlbedoTexture->Bind();
 	m_CrateNormalTexture->Bind(1);
 
 	m_CrateShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
 	m_CrateShader.SetMat4("u_Transform", crateTransform);
-	m_CrateShader.SetFloat3("u_LightPosition", m_LightPosition);
+	m_CrateShader.SetFloat3("u_LightDirection", m_LightDirection);
 	m_CrateShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
 	m_CrateShader.SetFloat3("u_LightColor", lightColor);
 
 	KMG::Renderer::DrawIndexed(m_BoxVertexArray, m_BoxVertexArray->GetIndexBuffer()->GetCount());
 
 	// ----- Render Light (box) ----- //
-	glm::mat4 lightTransform = glm::translate(glm::mat4(1.0f), m_LightPosition);
+	glm::mat4 lightTransform = glm::translate(glm::mat4(1.0f), m_LightDirection * 2.0f);
 	lightTransform = glm::scale(lightTransform, glm::vec3(0.5f));
 
 	m_FlatColorShader.Bind();
@@ -243,17 +250,22 @@ void ExampleLayer::OnUpdate(double dt)
 
 	// ----- Render Plane ----- //
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH);
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_BACK);
+
 	glm::mat4 terrainTransform = glm::translate(glm::mat4(1), glm::vec3(0, 0, 0));
+	terrainTransform = glm::scale(terrainTransform, glm::vec3(0.25f));
 
 	m_TerrainShader.Bind();
 	m_TerrainHeightmapTexture->Bind();
+	m_TerrainNormalTexture->Bind(1);
 
 	m_TerrainShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
 	m_TerrainShader.SetMat4("u_Transform", terrainTransform);
-	m_TerrainShader.SetFloat3("u_LightPosition", m_LightPosition);
+	m_TerrainShader.SetFloat3("u_LightDirection", m_LightDirection);
 	m_TerrainShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
+	m_TerrainShader.SetFloat("u_TerrainHeight", m_TerrainSize.y);
 
 	KMG::Renderer::DrawIndexed(m_TerrainVertexArray, m_TerrainVertexArray->GetIndexBuffer()->GetCount());
 }
@@ -282,13 +294,12 @@ bool ExampleLayer::OnKey(KMG::KeyEvent& e)
 	if (e.Action == KMG::Key::Released)
 		return false;
 
-	// Move the light around.
+	float dt = (float)KMG::Time::GetDeltaTime();
 	switch (e.Key)
 	{
-	case KMG::Key::Left: m_LightPosition -= glm::vec3(1.0f, 0.0f, 0.0f); break;
-	case KMG::Key::Right: m_LightPosition += glm::vec3(1.0f, 0.0f, 0.0f); break;
-	case KMG::Key::Up: m_LightPosition += glm::vec3(0.0f, 0.0f, 1.0f); break;
-	case KMG::Key::Down: m_LightPosition -= glm::vec3(0.0f, 0.0f, 1.0f); break;
+		case KMG::Key::Right: angle += dt * 10.0f; break;
+		case KMG::Key::Up: h += dt * 100.0f; break;
+		case KMG::Key::Down: h -= dt * 100.0f; break;
 	}
 
 	// Switch between random light color.
@@ -300,10 +311,10 @@ bool ExampleLayer::OnKey(KMG::KeyEvent& e)
 	{
 		switch (e.Key)
 		{
-		case KMG::Key::Num1: m_LightColour = { 1.0f, 0.0f, 0.0f }; break;
-		case KMG::Key::Num2: m_LightColour = { 0.0f, 1.0f, 0.0f }; break;
-		case KMG::Key::Num3: m_LightColour = { 0.0f, 0.0f, 1.0f }; break;
-		case KMG::Key::Num4: m_LightColour = { 1.0f, 1.0f, 1.0f }; break;
+			case KMG::Key::Num1: m_LightColour = { 1.0f, 0.0f, 0.0f }; break;
+			case KMG::Key::Num2: m_LightColour = { 0.0f, 1.0f, 0.0f }; break;
+			case KMG::Key::Num3: m_LightColour = { 0.0f, 0.0f, 1.0f }; break;
+			case KMG::Key::Num4: m_LightColour = { 1.0f, 1.0f, 1.0f }; break;
 		}
 	}
 

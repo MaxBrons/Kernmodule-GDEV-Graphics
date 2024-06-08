@@ -24,14 +24,14 @@ private:
 	KMG::Shader m_TerrainShader;
 	KMG::CameraController3D m_CameraController;
 	uint32_t m_Width, m_Height;
-	float m_XZScale = 5.0f;
+	glm::vec3 m_TerrainSize;
 
 	KMG::s_ptr<KMG::Texture> m_CrateAlbedoTexture;
 	KMG::s_ptr<KMG::Texture> m_CrateNormalTexture;
 	KMG::s_ptr<KMG::Texture> m_TerrainHeightmapTexture;
 	KMG::s_ptr<KMG::Texture> m_TerrainNormalTexture;
 
-	glm::vec3 m_LightPosition = {};
+	glm::vec3 m_LightDirection = glm::vec3(1.0f, 1.0f, 0.0f);
 	glm::vec3 m_LightColour = glm::vec3(1.0f);
 	bool m_RandomLightColour = false;
 };

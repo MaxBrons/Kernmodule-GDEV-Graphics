@@ -3,7 +3,7 @@
 
 namespace KMG
 {
-	static class Time
+	class Time
 	{
 	public:
 		static void Init();

@@ -47,7 +47,7 @@ namespace KMG
 		glm::vec3 GetForwardDirection() const;
 	private:
 		float m_FOV = 60.0f;
-		float m_AspectRatio = 1.77778;
+		float m_AspectRatio = 1.77778f;
 		float m_NearClip = 0.1f;
 		float m_FarClip = 1000.0f;
 		float m_ZoomLevel = 1.0f;
