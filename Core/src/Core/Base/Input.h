@@ -1,6 +1,8 @@
 #pragma once
 #include "Core.h"
 
+#include <GLFW/glfw3.h>
+
 namespace KMG
 {
 	using KeyCode = uint16_t;
@@ -63,6 +65,9 @@ namespace KMG
 			LeftControl = 341,
 			LeftAlt = 342,
 		};
+
+		static uint32_t Pressed = GLFW_PRESS;
+		static uint32_t Released = GLFW_RELEASE;
 	}
 
 	using MouseCode = uint16_t;
@@ -75,6 +80,9 @@ namespace KMG
 			ButtonLeft = 0,
 			ButtonRight = 1,
 		};
+
+		static uint32_t Pressed = GLFW_PRESS;
+		static uint32_t Released = GLFW_RELEASE;
 	}
 
 	class Input

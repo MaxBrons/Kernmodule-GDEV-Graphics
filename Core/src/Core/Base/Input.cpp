@@ -2,8 +2,6 @@
 #include "Input.h"
 #include "Application.h"
 
-#include <GLFW/glfw3.h>
-
 namespace KMG
 {
 	bool Input::GetKeyDown(KeyCode key)
