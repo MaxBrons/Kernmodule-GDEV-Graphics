@@ -20,6 +20,7 @@ project "Example-Assembly"
 		"../Core/vendor",
 		"../Core/%{IncludeDir.glm}",
 		"../Core/%{IncludeDir.Glad}",
+		"../Core/%{IncludeDir.GLFW}",
 	}
 
 	links

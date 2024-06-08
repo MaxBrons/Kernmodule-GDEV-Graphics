@@ -13,7 +13,7 @@ public:
 
 int main()
 {
-	auto* app = new ExampleApp({ "Graphic Example" });
+	auto* app = new ExampleApp({ "Graphics Example" });
 	app->Run();
 
 	delete app;

@@ -1,10 +1,9 @@
 #include "ExampleLayer.h"
 #include "Core/Base/Input.h"
-
-#include <glfw/include/GLFW/glfw3.h> // Temp, for easy testing; TODO: Abstract out glfw code to Core.
+#include "Base/Time.h"
 
 ExampleLayer::ExampleLayer()
-	:m_Width(1280), m_Height(720), m_CameraController(60.0f, m_Width / (float)m_Height, 0.1f, 1000.0f, 1.0f, 5.0f)
+	:m_Width(1280), m_Height(720), m_CameraController(60.0f, m_Width / (float)m_Height, 0.1f, 1000.0f, 1.0f, 15.0f)
 {
 }
 
@@ -57,7 +56,7 @@ void ExampleLayer::OnEnable()
 	vertexBuffer->AddLayout(KMG::BufferLayout("a_Normal", KMG::LayoutType::Float3, false));
 	vertexBuffer->AddLayout(KMG::BufferLayout("a_Tangent", KMG::LayoutType::Float3, false));
 	vertexBuffer->AddLayout(KMG::BufferLayout("a_Bitangent", KMG::LayoutType::Float3, false));
-	
+
 	uint32_t indices[] = {
 		// DOWN
 		0, 1, 2,   // first triangle
@@ -88,8 +87,8 @@ void ExampleLayer::OnEnable()
 
 	// ----- Crate ----- //
 	m_CrateShader = KMG::Shader("assets/shaders/Box-Vertex.glsl", "assets/shaders/Box-Fragment.glsl");
-	m_MainTexture = KMG::Texture::Create("assets/textures/Box_Albedo.png");
-	m_NormalTexture = KMG::Texture::Create("assets/textures/Box_Normal.png");
+	m_CrateAlbedoTexture = KMG::Texture::Create("assets/textures/Box_Albedo.png");
+	m_CrateNormalTexture = KMG::Texture::Create("assets/textures/Box_Normal.png");
 
 	// ----- Light ----- //
 	m_FlatColorShader = KMG::Shader("assets/shaders/FlatColor-Vert.glsl", "assets/shaders/FlatColor-Frag.glsl");
@@ -101,8 +100,81 @@ void ExampleLayer::OnEnable()
 	// ----- Rendering ----- //
 	m_CameraController.GetCamera().Move({ 0.0f, 1.0f, -2.0f });
 
+	SetupTerrain();
+
 	KMG::Cursor::SetCursorVisible(false);
 	KMG::Renderer::Initialize();
+}
+
+void ExampleLayer::SetupTerrain()
+{
+	m_TerrainHeightmapTexture = KMG::Texture::Create("assets/textures/Terrain_Heightmap.png");
+	m_TerrainNormalTexture = KMG::Texture::Create("assets/textures/Terrain_Normal.png");
+
+	uint32_t width = m_TerrainHeightmapTexture->GetWidth();
+	uint32_t height = m_TerrainHeightmapTexture->GetHeight();
+
+	int stride = 8;
+	float* vertices = new float[(width * height) * stride];
+	uint32_t* indices = new uint32_t[(width - 1) * (height - 1) * 6];
+
+	{
+		int index = 0;
+		for (uint32_t i = 0; i < (width * height); i++) {
+			// TODO: calculate x/z values
+			uint32_t x = i % width;
+			uint32_t z = i / width;
+
+			// TODO: set position
+			vertices[index++] = x * m_XZScale;
+			vertices[index++] = 0;
+			vertices[index++] = z * m_XZScale;
+			// TODO: set normal
+			vertices[index++] = 0;
+			vertices[index++] = 1;
+			vertices[index++] = 0;
+			// TODO: set uv
+			vertices[index++] = x / (float)width;
+			vertices[index++] = z / (float)height;
+		}
+	}
+
+	// OPTIONAL TODO: Calculate normal
+	// TODO: Set normal
+
+	{
+		uint32_t index = 0;
+		for (uint32_t i = 0; i < (width - 1) * (height - 1); i++) {
+			uint32_t x = i % (width - 1);
+			uint32_t z = i / (width - 1);
+
+			uint32_t vertex = z * width + x;
+			indices[index++] = vertex;
+			indices[index++] = vertex + width;
+			indices[index++] = vertex + width + 1;
+			indices[index++] = vertex;
+			indices[index++] = vertex + width + 1;
+			indices[index++] = vertex + 1;
+		}
+	}
+	m_TerrainVertexArray = KMG::VertexArray::Create();
+
+	auto vertexBuffer = KMG::VertexBuffer::Create(vertices, sizeof(*vertices));
+	vertexBuffer->AddLayout(KMG::BufferLayout("a_Position", KMG::LayoutType::Float3, false));
+	vertexBuffer->AddLayout(KMG::BufferLayout("a_Normal", KMG::LayoutType::Float3, false));
+	vertexBuffer->AddLayout(KMG::BufferLayout("a_UV", KMG::LayoutType::Float2, false));
+
+	auto indexBuffer = KMG::IndexBuffer::Create(&*indices, sizeof(*indices));
+	KMG_LOG_INFO(std::to_string(sizeof(indices)));
+	KMG_LOG_INFO(std::to_string(sizeof(*indices)));
+
+	m_TerrainVertexArray->AddVertexBuffer(vertexBuffer);
+	m_TerrainVertexArray->SetIndexBuffer(indexBuffer);
+
+	m_TerrainShader = KMG::Shader("assets/shaders/Terrain-Vertex.glsl", "assets/shaders/Terrain-Fragment.glsl");
+
+	delete[] vertices;
+	delete[] indices;
 }
 
 void ExampleLayer::OnDisable()
@@ -120,18 +192,18 @@ void ExampleLayer::OnUpdate(double dt)
 	KMG::Renderer::Clear();
 
 	// Calculate a random color or use the active static light color.
-	float time = static_cast<float>(glfwGetTime());
+	float time = KMG::Time::GetTime();
 	float sin = std::sinf(time) / 2 + 0.5f;
 	float cos = std::cosf(time) / 2 + 0.5f;
 	float tan = std::atan(time) / 2 + 0.5f;
 	glm::vec3 lightColor = m_RandomLightColour ? glm::normalize(glm::vec3(sin, cos, tan)) : m_LightColour;
 
-	// ----- Render Skybox ----- //
-	glDisable(GL_DEPTH_TEST);
+	// ----- Render Skybox (box) ----- //
+	glDisable(GL_DEPTH);
 	glDisable(GL_CULL_FACE);
 
 	glm::mat4 skyboxTransform = glm::translate(glm::mat4(1.0f), m_CameraController.GetCamera().GetPosition());
-	skyboxTransform = glm::scale(skyboxTransform, glm::vec3(10.0f, 10.0f, 10.0f));
+	skyboxTransform = glm::scale(skyboxTransform, glm::vec3(1000.0f, 1000.0f, 1000.0f));
 
 	m_SkyboxShader.Bind();
 	m_SkyboxShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
@@ -140,16 +212,15 @@ void ExampleLayer::OnUpdate(double dt)
 	m_SkyboxShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
 
 	KMG::Renderer::DrawIndexed(m_BoxVertexArray, m_BoxVertexArray->GetIndexBuffer()->GetCount());
-
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH);
 	glEnable(GL_CULL_FACE);
 
 	// ----- Render Crate (box) ----- //
 	glm::mat4 crateTransform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	m_CrateShader.Bind();
-	m_MainTexture->Bind(0);
-	m_NormalTexture->Bind(1);
+	m_CrateAlbedoTexture->Bind(0);
+	m_CrateNormalTexture->Bind(1);
 
 	m_CrateShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
 	m_CrateShader.SetMat4("u_Transform", crateTransform);
@@ -169,6 +240,22 @@ void ExampleLayer::OnUpdate(double dt)
 	m_FlatColorShader.SetFloat3("u_Color", lightColor != glm::vec3() ? lightColor : glm::vec3(0.75f));
 
 	KMG::Renderer::DrawIndexed(m_BoxVertexArray, m_BoxVertexArray->GetIndexBuffer()->GetCount());
+
+	// ----- Render Plane ----- //
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glCullFace(GL_BACK);
+	glm::mat4 terrainTransform = glm::translate(glm::mat4(1), glm::vec3(0, 0, 0));
+
+	m_TerrainShader.Bind();
+	m_TerrainHeightmapTexture->Bind();
+
+	m_TerrainShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
+	m_TerrainShader.SetMat4("u_Transform", terrainTransform);
+	m_TerrainShader.SetFloat3("u_LightPosition", m_LightPosition);
+	m_TerrainShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
+
+	KMG::Renderer::DrawIndexed(m_TerrainVertexArray, m_TerrainVertexArray->GetIndexBuffer()->GetCount());
 }
 
 void ExampleLayer::OnEvent(KMG::Event& e)
@@ -192,16 +279,16 @@ bool ExampleLayer::OnWindowResized(KMG::WindowResizeEvent& e)
 
 bool ExampleLayer::OnKey(KMG::KeyEvent& e)
 {
-	if (e.Action == GLFW_RELEASE)
+	if (e.Action == KMG::Key::Released)
 		return false;
 
 	// Move the light around.
 	switch (e.Key)
 	{
-		case KMG::Key::Left: m_LightPosition -= glm::vec3(1.0f, 0.0f, 0.0f); break;
-		case KMG::Key::Right: m_LightPosition += glm::vec3(1.0f, 0.0f, 0.0f); break;
-		case KMG::Key::Up: m_LightPosition += glm::vec3(0.0f, 0.0f, 1.0f); break;
-		case KMG::Key::Down: m_LightPosition -= glm::vec3(0.0f, 0.0f, 1.0f); break;
+	case KMG::Key::Left: m_LightPosition -= glm::vec3(1.0f, 0.0f, 0.0f); break;
+	case KMG::Key::Right: m_LightPosition += glm::vec3(1.0f, 0.0f, 0.0f); break;
+	case KMG::Key::Up: m_LightPosition += glm::vec3(0.0f, 0.0f, 1.0f); break;
+	case KMG::Key::Down: m_LightPosition -= glm::vec3(0.0f, 0.0f, 1.0f); break;
 	}
 
 	// Switch between random light color.
@@ -213,10 +300,10 @@ bool ExampleLayer::OnKey(KMG::KeyEvent& e)
 	{
 		switch (e.Key)
 		{
-			case KMG::Key::Num1: m_LightColour = { 1.0f, 0.0f, 0.0f }; break;
-			case KMG::Key::Num2: m_LightColour = { 0.0f, 1.0f, 0.0f }; break;
-			case KMG::Key::Num3: m_LightColour = { 0.0f, 0.0f, 1.0f }; break;
-			case KMG::Key::Num4: m_LightColour = { 1.0f, 1.0f, 1.0f }; break;
+		case KMG::Key::Num1: m_LightColour = { 1.0f, 0.0f, 0.0f }; break;
+		case KMG::Key::Num2: m_LightColour = { 0.0f, 1.0f, 0.0f }; break;
+		case KMG::Key::Num3: m_LightColour = { 0.0f, 0.0f, 1.0f }; break;
+		case KMG::Key::Num4: m_LightColour = { 1.0f, 1.0f, 1.0f }; break;
 		}
 	}
 
