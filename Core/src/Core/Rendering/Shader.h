@@ -26,6 +26,8 @@ namespace KMG
 		void SetMat3(const std::string& name, const glm::mat3& value);
 		void SetMat4(const std::string& name, const glm::mat4& value);
 	private:
+		void LogError(GLuint id, GLuint success);
+	private:
 		GLuint m_ShaderID;
 	};
 }
