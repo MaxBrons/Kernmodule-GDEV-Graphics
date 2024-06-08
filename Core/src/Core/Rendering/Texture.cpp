@@ -27,6 +27,9 @@ namespace KMG
 			case 4:
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 				break;
+			default:
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				break;
 		}
 
 		glGenerateMipmap(GL_TEXTURE_2D);
