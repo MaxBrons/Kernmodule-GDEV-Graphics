@@ -54,7 +54,7 @@ namespace KMG
 
 	void Shader::SetInt(const std::string& name, int value)
 	{
-		glUniform1i(glGetAttribLocation(m_ShaderID, name.c_str()), value);
+		glUniform1i(glGetUniformLocation(m_ShaderID, name.c_str()), value);
 	}
 
 	void Shader::SetInt2(const std::string& name, const glm::i32vec2& value)
@@ -74,7 +74,7 @@ namespace KMG
 
 	void Shader::SetFloat(const std::string& name, float value)
 	{
-		glUniform1f(glGetAttribLocation(m_ShaderID, name.c_str()), value);
+		glUniform1f(glGetUniformLocation(m_ShaderID, name.c_str()), value);
 	}
 
 	void Shader::SetFloat2(const std::string& name, const glm::vec2& value)
