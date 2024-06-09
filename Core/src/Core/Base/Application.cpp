@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Platform/Windows/WindowsWindow.h"
 #include "Time.h"
+#include "Rendering/Renderer.h"
 
 namespace KMG
 {
@@ -55,13 +56,23 @@ namespace KMG
 
 	void Application::OnEvent(Event& e)
 	{
+		EventDispatcher::Dispatch<WindowCloseEvent>(e, KMG_BIND_EVENT(OnWindowClosed));
+		EventDispatcher::Dispatch<WindowResizeEvent>(e, KMG_BIND_EVENT(OnWindowResized));
+
 		for (auto* layer : m_Layers)
 			layer->OnEvent(e);
+	}
 
-		if(e.GetEventType() == EventType::WindowClosed)
-		{
-			m_Running = false;
-			Shutdown();
-		}
+	bool Application::OnWindowClosed(WindowCloseEvent& e)
+	{
+		m_Running = false;
+		Shutdown();
+		return false;
+	}
+
+	bool Application::OnWindowResized(WindowResizeEvent& e)
+	{
+		Renderer::OnWindowResized(e.Width, e.Height);
+		return false;
 	}
 }

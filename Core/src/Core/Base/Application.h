@@ -26,6 +26,9 @@ namespace KMG
 		Window& GetWindow() const { return *m_Window; }
 		
 		static Application& Get() { return *s_Instance; }
+	private:
+		bool OnWindowClosed(WindowCloseEvent& e);
+		bool OnWindowResized(WindowResizeEvent& e);
 	protected:
 		std::vector<ApplicationLayer*> m_Layers;
 	private:
