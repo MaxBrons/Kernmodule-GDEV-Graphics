@@ -3,33 +3,35 @@
 
 namespace KMG
 {
+	glm::mat4 Renderer::s_ViewProjectionMatrix = glm::mat4(1);
+
 	void Renderer::Initialize()
 	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glEnable(GL_DEPTH_TEST);
+		RenderCommands::Initialize();
 	}
 
-	void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void Renderer::OnWindowResized(uint32_t width, uint32_t height)
 	{
-		glViewport(x, y, width, height);
+		RenderCommands::SetViewport(0, 0, width, height);
 	}
 
-	void Renderer::SetClearColor(const glm::vec4& color)
+	void Renderer::Begin(const Camera3D& camera)
 	{
-		glClearColor(color.x, color.y, color.z, color.w);
+		s_ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 	}
 
-	void Renderer::Clear()
+	void Renderer::End()
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 	}
 
-	void Renderer::DrawIndexed(const s_ptr<VertexArray>& vertexArray, uint32_t indexCount)
+	void Renderer::Submit(const s_ptr<Shader>& shader, const s_ptr<VertexArray>& vertexArray, const glm::mat4& transform)
 	{
-		vertexArray->Bind();
-		int count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+		shader->Bind();
+		shader->SetMat4("u_ViewProjection", s_ViewProjectionMatrix);
+		shader->SetMat4("u_Transform", transform);
+
+		RenderCommands::DrawIndexed(vertexArray);
 	}
+
 }

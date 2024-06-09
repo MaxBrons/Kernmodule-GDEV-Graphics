@@ -1,6 +1,8 @@
 #pragma once
 #include "Core.h"
-#include "VertexArray.h"
+#include "RenderCommands.h"
+#include "Camera3D.h"
+#include "Shader.h"
 
 namespace KMG
 {
@@ -11,9 +13,11 @@ namespace KMG
 		virtual ~Renderer() = default;
 
 		static void Initialize();
-		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
-		static void SetClearColor(const glm::vec4& color);
-		static void Clear();
-		static void DrawIndexed(const s_ptr<VertexArray>& vertexArray, uint32_t indexCount);
+		static void OnWindowResized(uint32_t width, uint32_t height);
+		static void Begin(const Camera3D& camera);
+		static void End();
+		static void Submit(const s_ptr<Shader>& shader, const s_ptr<VertexArray>& vertexArray, const glm::mat4& transform);
+	private:
+		static glm::mat4 s_ViewProjectionMatrix;
 	};
 }
