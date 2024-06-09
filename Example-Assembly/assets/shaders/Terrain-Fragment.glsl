@@ -10,12 +10,14 @@ layout(binding = 4) uniform sampler2D u_Rock;
 layout(binding = 5) uniform sampler2D u_Sand;
 layout(binding = 6) uniform sampler2D u_Snow;
 
+in vec3 v_PixelCoords;
+in vec2 v_UV;
+
 uniform vec3 u_LightDirection;
 uniform vec3 u_CameraPosition;
 uniform float u_TextureSmoothing;
-
-in vec3 v_PixelCoords;
-in vec2 v_UV;
+uniform vec3 u_FogColorTop;
+uniform vec3 u_FogColorBottom;
 
 vec3 lerp(vec3 a, vec3 b, float t)
 {
@@ -63,11 +65,8 @@ void main()
 
 	float fog = clamp((distance - 1) / 10, 0, 1);
 
-	vec3 topColor = vec3(68.0f / 255.0f, 118.0f / 255.0f, 189.0f / 255.0f);
-	vec3 botColor = vec3(188.0f / 255.0f, 214.0f / 255.0f, 231.0f / 255.0f);
-
 	vec3 viewDir = normalize(v_PixelCoords - u_CameraPosition);
-	vec3 fogColor = lerp(botColor, topColor, max(viewDir.y, 0.0f));
+	vec3 fogColor = lerp(u_FogColorBottom, u_FogColorTop, max(viewDir.y, 0.0f));
 
 	vec4 result = vec4(lerp(diffuse * min(lightValue + 0.f, 1.0f), fogColor, fog), 1.0f);
 	FragColor = result;

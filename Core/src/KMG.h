@@ -15,3 +15,5 @@
 #include "Core/Rendering/Camera3D.h"
 #include "Core/Utilities/CameraController3D.h"
 #include "Core/Rendering/Renderer.h"
+#include "Core/Rendering/RenderCommands.h"
+#include "Core/Base/Model.h"
