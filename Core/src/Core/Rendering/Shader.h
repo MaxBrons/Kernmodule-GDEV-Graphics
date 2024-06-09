@@ -15,6 +15,8 @@ namespace KMG
 		void Bind();
 		void Unbind();
 
+		GLint GetID() const { return m_ShaderID; }
+
 		void SetInt(const std::string& name, int value);
 		void SetInt2(const std::string& name, const glm::i32vec2& value);
 		void SetInt3(const std::string& name, const glm::i32vec3& value);
@@ -25,6 +27,8 @@ namespace KMG
 		void SetFloat4(const std::string& name, const glm::vec4& value);
 		void SetMat3(const std::string& name, const glm::mat3& value);
 		void SetMat4(const std::string& name, const glm::mat4& value);
+
+		static s_ptr<Shader> Create(const std::string& vertSource, const std::string& fragSource);
 	private:
 		void LogError(GLuint id, GLuint success);
 	private:

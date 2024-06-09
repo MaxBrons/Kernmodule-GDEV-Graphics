@@ -102,6 +102,11 @@ namespace KMG
 		glUniformMatrix4fv(glGetUniformLocation(m_ShaderID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 	}
 
+	s_ptr<Shader> Shader::Create(const std::string& vertSource, const std::string& fragSource)
+	{
+		return MakeShared<Shader>(vertSource, fragSource);
+	}
+
 	void Shader::LogError(GLuint id, GLuint success)
 	{
 		if (success)
