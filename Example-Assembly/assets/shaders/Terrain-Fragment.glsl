@@ -38,14 +38,37 @@ void main()
 	float gr = clamp((y - 200) / u_TextureSmoothing, -1, 1) * 0.5f + 0.5f;
 	float rs = clamp((y - 300) / u_TextureSmoothing, -1, 1) * 0.5f + 0.5f;
 
-	vec3 dirtColor = texture(u_Dirt, v_UV * 10).rgb;
-	vec3 sandColor = texture(u_Sand, v_UV * 10).rgb;
-	vec3 grassColor = texture(u_Grass, v_UV * 10).rgb;
-	vec3 rockColor = texture(u_Rock, v_UV * 10).rgb;
-	vec3 snowColor = texture(u_Snow, v_UV * 10).rgb;
+	float distance = length(v_PixelCoords - u_CameraPosition);
+	float uvLerp = clamp((distance - 5) / 10f, -1, 1) * 0.5f + 0.5f;
+
+	vec3 dirtColorClose = texture(u_Dirt, v_UV * 100).rgb;
+	vec3 sandColorClose = texture(u_Sand, v_UV * 100).rgb;
+	vec3 grassColorClose = texture(u_Grass, v_UV * 100).rgb;
+	vec3 rockColorClose = texture(u_Rock, v_UV * 100).rgb;
+	vec3 snowColorClose = texture(u_Snow, v_UV * 100).rgb;
+
+	vec3 dirtColorFar = texture(u_Dirt, v_UV * 10).rgb;
+	vec3 sandColorFar = texture(u_Sand, v_UV * 10).rgb;
+	vec3 grassColorFar = texture(u_Grass, v_UV * 10).rgb;
+	vec3 rockColorFar = texture(u_Rock, v_UV * 10).rgb;
+	vec3 snowColorFar = texture(u_Snow, v_UV * 10).rgb;
+
+	vec3 dirtColor = lerp(dirtColorClose, dirtColorFar, uvLerp);
+	vec3 sandColor = lerp(sandColorClose, sandColorFar, uvLerp);
+	vec3 grassColor = lerp(grassColorClose, grassColorFar, uvLerp);
+	vec3 rockColor = lerp(rockColorClose, rockColorFar, uvLerp);
+	vec3 snowColor = lerp(snowColorClose, snowColorFar, uvLerp);
 
 	vec3 diffuse = lerp(lerp(lerp(lerp(dirtColor, sandColor, ds), grassColor, sg), rockColor, gr), snowColor, rs);
 
-	vec4 result = vec4(diffuse * min(lightValue + 0.f, 1.0f), 1.0f);
+	float fog = clamp((distance - 1) / 10, 0, 1);
+
+	vec3 topColor = vec3(68.0f / 255.0f, 118.0f / 255.0f, 189.0f / 255.0f);
+	vec3 botColor = vec3(188.0f / 255.0f, 214.0f / 255.0f, 231.0f / 255.0f);
+
+	vec3 viewDir = normalize(v_PixelCoords - u_CameraPosition);
+	vec3 fogColor = lerp(botColor, topColor, max(viewDir.y, 0.0f));
+
+	vec4 result = vec4(lerp(diffuse * min(lightValue + 0.f, 1.0f), fogColor, fog), 1.0f);
 	FragColor = result;
 }
