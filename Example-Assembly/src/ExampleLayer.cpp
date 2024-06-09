@@ -108,9 +108,14 @@ void ExampleLayer::OnEnable()
 
 void ExampleLayer::SetupTerrain()
 {
-	m_TerrainSize = glm::vec3(.1f, 5, .1f);
-	m_TerrainHeightmapTexture = KMG::Texture::Create("assets/textures/Terrain_Heightmap.png");
-	m_TerrainNormalTexture = KMG::Texture::Create("assets/textures/Terrain_Normal.png");
+	m_TerrainSize = glm::vec3(5.0f, 500.0f, 5.0f);
+	m_TerrainHeightmapTexture = KMG::Texture::Create("assets/textures/Terrain_Heightmap.png", 4);
+	m_TerrainNormalTexture = KMG::Texture::Create("assets/textures/Terrain_Normal.png", 4);
+	m_TerrainDirtTexture = KMG::Texture::Create("assets/textures/Terrain_Dirt.jpg", 4);
+	m_TerrainGrassTexture = KMG::Texture::Create("assets/textures/Terrain_Grass.png", 4);
+	m_TerrainRockTexture = KMG::Texture::Create("assets/textures/Terrain_Rock.jpg", 4);
+	m_TerrainSandTexture = KMG::Texture::Create("assets/textures/Terrain_Sand.jpg", 4);
+	m_TerrainSnowTexture = KMG::Texture::Create("assets/textures/Terrain_Snow.jpg", 4);
 
 	uint32_t width = m_TerrainHeightmapTexture->GetWidth();
 	uint32_t height = m_TerrainHeightmapTexture->GetHeight();
@@ -185,6 +190,7 @@ void ExampleLayer::OnDisable()
 {
 	KMG_LOG_WARN("OnDisable of Example Layer not yet implemented.");
 }
+
 static float angle = 0, h = 0.5f;
 void ExampleLayer::OnUpdate(double dt)
 {
@@ -255,17 +261,23 @@ void ExampleLayer::OnUpdate(double dt)
 	glCullFace(GL_BACK);
 
 	glm::mat4 terrainTransform = glm::translate(glm::mat4(1), glm::vec3(0, 0, 0));
-	terrainTransform = glm::scale(terrainTransform, glm::vec3(0.25f));
+	terrainTransform = glm::scale(terrainTransform, glm::vec3(0.01f));
 
 	m_TerrainShader.Bind();
 	m_TerrainHeightmapTexture->Bind();
 	m_TerrainNormalTexture->Bind(1);
+	m_TerrainDirtTexture->Bind(2);
+	m_TerrainGrassTexture->Bind(3);
+	m_TerrainRockTexture->Bind(4);
+	m_TerrainSandTexture->Bind(5);
+	m_TerrainSnowTexture->Bind(6);
 
 	m_TerrainShader.SetMat4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
 	m_TerrainShader.SetMat4("u_Transform", terrainTransform);
 	m_TerrainShader.SetFloat3("u_LightDirection", m_LightDirection);
 	m_TerrainShader.SetFloat3("u_CameraPosition", m_CameraController.GetCamera().GetPosition());
 	m_TerrainShader.SetFloat("u_TerrainHeight", m_TerrainSize.y);
+	m_TerrainShader.SetFloat("u_TextureSmoothing", 30.0f);
 
 	KMG::Renderer::DrawIndexed(m_TerrainVertexArray, m_TerrainVertexArray->GetIndexBuffer()->GetCount());
 }

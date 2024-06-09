@@ -30,6 +30,11 @@ private:
 	KMG::s_ptr<KMG::Texture> m_CrateNormalTexture;
 	KMG::s_ptr<KMG::Texture> m_TerrainHeightmapTexture;
 	KMG::s_ptr<KMG::Texture> m_TerrainNormalTexture;
+	KMG::s_ptr<KMG::Texture> m_TerrainDirtTexture;
+	KMG::s_ptr<KMG::Texture> m_TerrainGrassTexture;
+	KMG::s_ptr<KMG::Texture> m_TerrainRockTexture;
+	KMG::s_ptr<KMG::Texture> m_TerrainSandTexture;
+	KMG::s_ptr<KMG::Texture> m_TerrainSnowTexture;
 
 	glm::vec3 m_LightDirection = glm::vec3(1.0f, 1.0f, 0.0f);
 	glm::vec3 m_LightColour = glm::vec3(1.0f);
