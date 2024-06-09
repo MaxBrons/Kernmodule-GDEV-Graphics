@@ -8,7 +8,7 @@ namespace KMG
 	class Texture
 	{
 	public:
-		Texture(const std::string& path);
+		Texture(const std::string& path, uint32_t channels = 0);
 		virtual ~Texture();
 
 		void Bind(uint32_t slot = 0);
@@ -18,7 +18,7 @@ namespace KMG
 		uint32_t GetChannelCount() const { return static_cast<uint32_t>(m_Channels); }
 		uint8_t* GetData() const { return m_Data; }
 
-		static s_ptr<Texture> Create(const std::string& path);
+		static s_ptr<Texture> Create(const std::string& path, uint32_t channels = 0);
 	private:
 		uint32_t m_RendererID;
 		int m_Width, m_Height, m_Channels;

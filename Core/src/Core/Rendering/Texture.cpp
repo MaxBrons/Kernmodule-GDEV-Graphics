@@ -6,33 +6,32 @@
 
 namespace KMG
 {
-	Texture::Texture(const std::string& path)
+	Texture::Texture(const std::string& path, uint32_t channels)
 	{
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
-		glTexParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glTexParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		stbi_set_flip_vertically_on_load(1);
-		m_Data = stbi_load(path.c_str(), &m_Width, &m_Height, &m_Channels, 4);
+		m_Data = stbi_load(path.c_str(), &m_Width, &m_Height, &m_Channels, STBI_rgb_alpha);
 
 		KMG_CORE_ASSERT(m_Data, "Failed to load texture at path: " + std::string(path));
+
+		m_Channels = channels ? channels : m_Channels;
 
 		switch (m_Channels)
 		{
 			case 3:
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_Data);
 				break;
+			default:
 			case 4:
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_Data);
-				break;
-			default:
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_Data);
-				m_Channels = 4;
 				break;
 		}
 
@@ -54,8 +53,8 @@ namespace KMG
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 	}
 
-	s_ptr<Texture> Texture::Create(const std::string& path)
+	s_ptr<Texture> Texture::Create(const std::string& path, uint32_t channels)
 	{
-		return MakeShared<Texture>(path);
+		return MakeShared<Texture>(path, channels);
 	}
 }
