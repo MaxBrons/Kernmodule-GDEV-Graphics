@@ -18,6 +18,9 @@ project "Core"
 		"vendor/stb_image/**.cpp",
 		"vendor/glm/glm/**.hpp",
 		"vendor/glm/glm/**.inl",
+		"vendor/assimp/assimp/**.hpp",
+		"vendor/assimp/assimp/**.h",
+		"vendor/assimp/assimp/**.inl",
 	}
 
 	defines
@@ -33,6 +36,7 @@ project "Core"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.assimp}",
 	}
 
 	links

@@ -117,6 +117,8 @@ void ExampleLayer::SetupTerrain()
 	m_TerrainSandTexture = KMG::Texture::Create("assets/textures/Terrain_Sand.jpg", 4);
 	m_TerrainSnowTexture = KMG::Texture::Create("assets/textures/Terrain_Snow.jpg", 4);
 
+	m_BackpackModel = KMG::MakeShared<Model>("assets/models/backpack/backpack.obj");
+
 	uint32_t width = m_TerrainHeightmapTexture->GetWidth();
 	uint32_t height = m_TerrainHeightmapTexture->GetHeight();
 

@@ -21,6 +21,8 @@ project "Example-Assembly"
 		"../Core/%{IncludeDir.glm}",
 		"../Core/%{IncludeDir.Glad}",
 		"../Core/%{IncludeDir.GLFW}",
+		"../Core/%{IncludeDir.stb_image}",
+		"../Core/%{IncludeDir.assimp}",
 	}
 
 	links

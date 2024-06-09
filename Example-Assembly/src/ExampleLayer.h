@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "KMG.h"
+#include "Base/model.h"
 
 class ExampleLayer : public KMG::ApplicationLayer
 {
@@ -35,6 +36,8 @@ private:
 	KMG::s_ptr<KMG::Texture> m_TerrainRockTexture;
 	KMG::s_ptr<KMG::Texture> m_TerrainSandTexture;
 	KMG::s_ptr<KMG::Texture> m_TerrainSnowTexture;
+
+	KMG::s_ptr<Model> m_BackpackModel;
 
 	glm::vec3 m_LightDirection = glm::vec3(1.0f, 1.0f, 0.0f);
 	glm::vec3 m_LightColour = glm::vec3(1.0f);

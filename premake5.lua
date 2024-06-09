@@ -23,6 +23,7 @@ IncludeDir["GLFW"] = "vendor/glfw/include"
 IncludeDir["Glad"] = "vendor/glad/include"
 IncludeDir["glm"] = "vendor/glm"
 IncludeDir["stb_image"] = "vendor/stb_image"
+IncludeDir["assimp"] = "vendor/assimp"
 
 -- Projects
 group "Dependencies"
