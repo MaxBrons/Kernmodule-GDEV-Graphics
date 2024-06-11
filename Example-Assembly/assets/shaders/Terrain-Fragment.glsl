@@ -41,7 +41,7 @@ void main()
 	float rs = clamp((y - 300) / u_TextureSmoothing, -1, 1) * 0.5f + 0.5f;
 
 	float distance = length(v_PixelCoords - u_CameraPosition);
-	float uvLerp = clamp((distance - 5) / 10f, -1, 1) * 0.5f + 0.5f;
+	float uvLerp = clamp((distance - 5) / 10.0f, -1, 1) * 0.5f + 0.5f;
 
 	vec3 dirtColorClose = texture(u_Dirt, v_UV * 100).rgb;
 	vec3 sandColorClose = texture(u_Sand, v_UV * 100).rgb;
